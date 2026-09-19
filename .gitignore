@@ -1,0 +1,48 @@
+# Datos AIS crudos y descargas pesadas (nunca versionar)
+/Datos/
+/Datos/**/*.csv
+/Datos/**/*.zip
+/Datos/**/*.zst
+/Datos/**/*.gz
+/data/raw/**
+/data/landing/**
+# Reporte local regenerable de validar_ingesta_ais_7_dias.py.
+/ingesta_local_7_dias.json
+
+# Artefactos de Spark / Databricks locales
+spark-warehouse/
+metastore_db/
+derby.log
+derby.log.*
+checkpoint/
+checkpoints/
+*_checkpoint/
+_temporary/
+_spark_metadata/
+.ipynb_checkpoints/
+.databricks/
+
+# Entornos, secretos y configuración local
+.env
+.env.*
+!.env.example
+.venv/
+.spark_tmp/
+/local_artifacts/
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+
+# Sistema, editores y pruebas
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/

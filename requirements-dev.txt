@@ -1,0 +1,5 @@
+# Version alineada con Databricks Runtime 19 / Apache Spark 4.2.0.
+pyspark==4.2.0
+
+# Índices H3 para el análisis de concentración espacial.
+h3==4.5.0
