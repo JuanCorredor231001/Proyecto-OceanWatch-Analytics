@@ -46,3 +46,8 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+Vessel Traffic - Marine Cadastre.pdf
+docs/propuesta_proposito_consulta_requisito_4.md
+notebooks/.gitkeep
+docs/.gitkeep
+config/.gitkeep

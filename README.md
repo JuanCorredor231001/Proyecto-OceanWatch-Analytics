@@ -98,11 +98,11 @@ El equipo utilizó Codex como apoyo durante el desarrollo iterativo de los noteb
 
 ## Equipo
 
-| Integrante | GitHub | Responsabilidad inicial |
-|---|---|---|
-| Por definir | Por definir | Por definir |
-| Por definir | Por definir | Por definir |
-| Por definir | Por definir | Por definir |
+| Integrante | Código |
+|---|---|
+| Juan Sebastián Corredor Sánchez | 202014956 |
+| Karina Marita Aranguren Espinoza | 202326292 |
+| Estefania Quijano Garcia | 202311445 |
 
 ## Fuentes
 
