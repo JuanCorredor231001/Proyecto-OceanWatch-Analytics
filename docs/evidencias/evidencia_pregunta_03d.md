@@ -1,6 +1,6 @@
 # Evidencia — Pregunta 03d: ¿dónde se concentra el tráfico?
 
-Ejecución: 2026-09-15, Databricks Free Edition serverless, Spark 4.2.0. La fuente AIS son los siete CSV del Volume `oceanwatch_g07.landing.raw_ais`, con 60,533,559 posiciones de origen. Se aplicó D-07 para duplicados exactos; el filtro de MMSI no conformes **no** aplica porque la métrica cuenta posiciones por celda, no por buque.
+Ejecución: 2026-09-15, Databricks Free Edition serverless, Spark 4.2.0. La fuente AIS son los siete CSV del Volume `oceanwatch_g06.landing.raw_ais`, con 60,533,559 posiciones de origen. Se aplicó D-07 para duplicados exactos; el filtro de MMSI no conformes **no** aplica porque la métrica cuenta posiciones por celda, no por buque.
 
 ## Método
 

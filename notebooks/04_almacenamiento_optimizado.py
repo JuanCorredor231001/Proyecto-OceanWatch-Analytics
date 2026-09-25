@@ -13,7 +13,7 @@ from time import perf_counter
 from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType
 
-CATALOG = "oceanwatch_g07"
+CATALOG = "oceanwatch_g06"
 RAW_ROOT = f"/Volumes/{CATALOG}/landing/raw_ais"
 DATES = ["2023-06-01", "2023-06-02", "2023-06-03", "2023-06-04", "2023-06-05", "2023-06-06", "2023-06-07"]
 DELTA_TABLE = f"{CATALOG}.analytics.ais_positions_d07_delta"

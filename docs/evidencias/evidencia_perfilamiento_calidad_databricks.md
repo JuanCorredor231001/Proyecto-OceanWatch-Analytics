@@ -1,6 +1,6 @@
 # Evidencia de perfilamiento de calidad - Databricks
 
-Ejecución: 2026-09-14 en Databricks Free Edition serverless con Spark 4.2.0. Fuente: los siete CSV extraídos en `/Volumes/oceanwatch_g07/landing/raw_ais`. No se usó `cache()` ni `persist()` ni se materializó una tabla intermedia.
+Ejecución: 2026-09-14 en Databricks Free Edition serverless con Spark 4.2.0. Fuente: los siete CSV extraídos en `/Volumes/oceanwatch_g06/landing/raw_ais`. No se usó `cache()` ni `persist()` ni se materializó una tabla intermedia.
 
 ## Perfil general
 

@@ -32,7 +32,7 @@ from pyspark.sql.types import (
 # COMMAND ----------
 
 # Identificador provisional neutral; debe coincidir con el notebook 00.
-TEAM_ID = "g07"
+TEAM_ID = "g06"
 if not TEAM_ID.replace("_", "").isalnum() or TEAM_ID != TEAM_ID.lower():
     raise ValueError("TEAM_ID debe usar solo minúsculas, números y guiones bajos")
 
@@ -41,8 +41,7 @@ VOLUME_ROOT = Path(f"/Volumes/{CATALOG}/landing/raw_ais")
 
 # 01-jun ya fue validado end-to-end contra el conteo local; ejecutar los siete días.
 DATES_TO_INGEST = [
-    "2023-06-01", "2023-06-02", "2023-06-03", "2023-06-04",
-    "2023-06-05", "2023-06-06", "2023-06-07",
+    "2023-06-01", "2023-06-02", "2023-06-03", "2023-06-04","2023-06-05", "2023-06-06", "2023-06-07",
 ]
 
 OFFICIAL_URLS = {
@@ -179,6 +178,25 @@ def union_daily_frames(daily_frames):
 
 # COMMAND ----------
 
+#Celda de limpieza
+import shutil
+
+downloads_dir = VOLUME_ROOT / "downloads"
+extracted_dir = VOLUME_ROOT / "extracted"
+
+if downloads_dir.exists():
+    shutil.rmtree(downloads_dir)
+
+if extracted_dir.exists():
+    shutil.rmtree(extracted_dir)
+
+downloads_dir.mkdir(parents=True, exist_ok=True)
+extracted_dir.mkdir(parents=True, exist_ok=True)
+
+print("Entorno de ingestión reiniciado")
+
+# COMMAND ----------
+
 daily_frames = []
 ingestion_metrics = []
 
@@ -188,10 +206,35 @@ for day in DATES_TO_INGEST:
 
     archive_path = VOLUME_ROOT / "downloads" / f"AIS_{day.replace('-', '_')}.zip"
     csv_dir = VOLUME_ROOT / "extracted" / f"ingestion_date={day}"
-    download_info, download_seconds = download_with_retries(
-        OFFICIAL_URLS[day], archive_path, EXPECTED_SHA256.get(day)
-    )
-    csv_path, extract_seconds = extract_single_csv(archive_path, csv_dir)
+    if archive_path.exists():
+        if not zipfile.is_zipfile(archive_path):
+            print(f"ZIP corrupto detectado. Eliminando {archive_path.name}")
+            archive_path.unlink()
+
+    if not archive_path.exists():
+         download_info, download_seconds = download_with_retries(
+            OFFICIAL_URLS[day],
+            archive_path,
+            EXPECTED_SHA256.get(day)
+        )
+         if not zipfile.is_zipfile(archive_path):
+            archive_path.unlink(missing_ok=True)
+            raise RuntimeError(
+                f"La descarga de {archive_path.name} produjo un archivo inválido."
+            )
+    else:
+        download_info = verify_file(archive_path)
+        download_seconds = 0
+
+    csv_path = csv_dir / f"AIS_{day.replace('-', '_')}.csv"
+
+    if not csv_path.exists():
+        csv_path, extract_seconds = extract_single_csv(
+            archive_path, csv_dir
+        )
+    else:
+        print(f"Usando CSV existente: {csv_path.name}")
+        extract_seconds = 0
 
     read_started = time.perf_counter()
     daily_frame = read_ais_csv(csv_path)

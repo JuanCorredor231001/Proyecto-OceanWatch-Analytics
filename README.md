@@ -2,6 +2,14 @@
 
 Este repositorio reúne el lakehouse de tráfico marítimo construido con mensajes AIS de NOAA / Marine Cadastre. Aquí quedan los notebooks, las decisiones y la evidencia de la Entrega 1; los datos crudos se mantienen fuera de Git.
 
+## Equipo
+
+| Integrante | Código |
+|---|---|
+| Juan Sebastián Corredor Sánchez | 202014956 |
+| Karina Marita Aranguren Espinoza | 202326292 |
+| Estefania Quijano Garcia | 202311445 |
+
 ## Estado
 
 La ingesta y el perfilamiento cubren 60,533,559 posiciones en Databricks Free Edition. Las cinco preguntas de negocio tienen planes de ejecución y evidencia en `docs/`; el requisito 4 de almacenamiento óptimo sigue a continuación.
@@ -95,14 +103,6 @@ Los notebooks usan el prefijo de dos dígitos y nombres en minúsculas con guion
 ## Uso de asistencia de IA
 
 El equipo utilizó Codex como apoyo durante el desarrollo iterativo de los notebooks en Databricks/PySpark y al redactar evidencia técnica. Cada resultado fue ejecutado y validado por el equipo en Databricks o en el entorno local antes de documentarlo. Las decisiones D-01 a D-07 fueron revisadas y aprobadas por el equipo a partir de la evidencia cuantitativa registrada; no se adoptaron automáticamente por una sugerencia de IA.
-
-## Equipo
-
-| Integrante | Código |
-|---|---|
-| Juan Sebastián Corredor Sánchez | 202014956 |
-| Karina Marita Aranguren Espinoza | 202326292 |
-| Estefania Quijano Garcia | 202311445 |
 
 ## Fuentes
 
