@@ -8,7 +8,7 @@
 - El conteo observado fue **60,533,559 posiciones**, frente a ~150 millones estimadas en el enunciado.
 - Esta diferencia de volumen quedó registrada como hallazgo y no alteró el alcance de los siete archivos solicitados.
 - La ejecución se hizo en Databricks Free Edition serverless con Spark 4.2.0; el prototipo local usa PySpark 4.2.0.
-- El lakehouse usa el catálogo provisional `oceanwatch_g07` y los esquemas `landing`, `reference` y `analytics`.
+- El lakehouse usa el catálogo provisional `oceanwatch_g06` y los esquemas `landing`, `reference` y `analytics`.
 - La entrega cubre ingesta, perfilamiento, cinco preguntas de negocio, almacenamiento óptimo y gobernanza de Unity Catalog.
 - El repositorio reúne notebooks exportados, decisiones, fuentes, evidencias, bitácora y reglas para excluir artefactos pesados.
 - Los seis requisitos de la Entrega 1 están documentados como completos; quedan decisiones docentes no bloqueantes para una eventual corrección.
@@ -46,7 +46,7 @@ Fuentes: `docs/evidencia_ingesta_databricks_7_dias.md`, `docs/decisiones_pendien
 
 ### 5. Gobernanza
 
-- Se verificaron los comentarios, la jerarquía y la metadata de `oceanwatch_g07`, sus esquemas, los Volumes `landing.raw_ais`, `reference.world_port_index`, `analytics.benchmark_files` y la tabla Delta oficial.
+- Se verificaron los comentarios, la jerarquía y la metadata de `oceanwatch_g06`, sus esquemas, los Volumes `landing.raw_ais`, `reference.world_port_index`, `analytics.benchmark_files` y la tabla Delta oficial.
 - La evidencia reporta la propiedad efectiva del usuario del workspace Free Edition y cero grants explícitos en catálogo, esquema `analytics` y tabla Delta.
 - Evidencia: `docs/evidencia_gobernanza.md` y notebook `05_gobernanza_documentacion`.
 
@@ -65,7 +65,7 @@ Fuentes: `docs/evidencia_ingesta_databricks_7_dias.md`, `docs/decisiones_pendien
 | D-03 | Asociar centroide H3 r8 con punto WPI mediante buffer geodésico de 2 km. | Sensibilidad Top 10: 1 km asocia 1 celda, 2 km 2 y 5 km 5; 2 km se conserva como proximidad directa conservadora. (`docs/evidencia_pregunta_03d.md`.) |
 | D-04 | Formar pares consecutivos por MMSI; exigir gap `0 < t <= 2 h` y velocidad implícita `<= 60 kn`. | Evita saltos/tramos desconectados; quedaron 60,369,975 pares elegibles en el perfilamiento. (`docs/evidencia_perfilamiento_calidad_databricks.md`.) |
 | D-05 | Evidenciar bytes, archivos leídos y efecto de `OPTIMIZE`. | Es la evidencia literal solicitada para almacenamiento; se midió en Parquet y Delta antes/después. (`docs/evidencia_almacenamiento_pre_optimize.md`.) |
-| D-06 | Usar catálogo provisional `oceanwatch_g07` y esquemas `landing`, `reference`, `analytics`. | La convención separa función de cada activo sin afirmar capas fuera de alcance; `g07` sigue pendiente de confirmar con el equipo. (`docs/decisiones_pendientes_de_confirmar.md`.) |
+| D-06 | Usar catálogo provisional `oceanwatch_g06` y esquemas `landing`, `reference`, `analytics`. | La convención separa función de cada activo sin afirmar capas fuera de alcance; `g06` sigue pendiente de confirmar con el equipo. (`docs/decisiones_pendientes_de_confirmar.md`.) |
 | D-07 | Deduplicar filas exactas; excluir MMSI no conformes de métricas por buque. | Había 1,388 copias adicionales y 49,897 posiciones con MMSI no conformes; la regla evita sesgar conteos, trayectorias y presencia. (`docs/evidencia_perfilamiento_calidad_databricks.md`.) |
 
 ## 4. Hallazgos y descubrimientos relevantes
@@ -113,6 +113,6 @@ Detalle y planes de ejecución: `docs/resumen_preguntas_negocio.md` y `docs/evid
 
 ## 8. Estado y próximos pasos
 
-La Entrega 1 está documentada como completa en sus seis requisitos. Quedan decisiones no bloqueantes para confirmar con el profesor: el conteo real frente a ~150M (D-01), el uso de enlaces `.zip` frente a la distribución `.csv.zst` actual (D-02), una definición docente distinta para asociación a puertos (D-03), los umbrales D-04 y la naturaleza de los MMSI no conformes (D-07). El equipo también debe confirmar si conserva `g07` como identificador de catálogo o lo sustituye antes de la entrega. (Fuente: `docs/decisiones_pendientes_de_confirmar.md`.)
+La Entrega 1 está documentada como completa en sus seis requisitos. Quedan decisiones no bloqueantes para confirmar con el profesor: el conteo real frente a ~150M (D-01), el uso de enlaces `.zip` frente a la distribución `.csv.zst` actual (D-02), una definición docente distinta para asociación a puertos (D-03), los umbrales D-04 y la naturaleza de los MMSI no conformes (D-07). El equipo también debe confirmar si conserva `g06` como identificador de catálogo o lo sustituye antes de la entrega. (Fuente: `docs/decisiones_pendientes_de_confirmar.md`.)
 
 Según el alcance ya documentado, la Entrega 2 debe reutilizar el perfilamiento de calidad de esta entrega como insumo para definir y justificar reglas de tratamiento. Cualquier ajuste posterior debe conservar trazabilidad en `BITACORA.md` y actualizar la decisión afectada, sin reescribir la evidencia histórica.
