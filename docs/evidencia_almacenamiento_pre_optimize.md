@@ -6,7 +6,7 @@ Fecha: 2026-09-15. Propósito: historial temporal por `MMSI` y `BaseDateTime`.
 
 Ambos artefactos contienen el mismo conjunto D-07: **60,482,276** filas. Antes de ambas escrituras se eliminaron duplicados exactos y MMSI no conformes.
 
-Unity Catalog Free Edition rechazó una tabla administrada `USING PARQUET` porque solo admite Delta. La línea base Parquet se conservó como archivos en el Volume gobernado `oceanwatch_g07.analytics.benchmark_files`; Delta quedó como la tabla administrada `oceanwatch_g07.analytics.ais_positions_d07_delta`, con comentario de procedencia y D-07. Un Volume no puede registrarse simultáneamente como tabla UC.
+Unity Catalog Free Edition rechazó una tabla administrada `USING PARQUET` porque solo admite Delta. La línea base Parquet se conservó como archivos en el Volume gobernado `oceanwatch_g06.analytics.benchmark_files`; Delta quedó como la tabla administrada `oceanwatch_g06.analytics.ais_positions_d07_delta`, con comentario de procedencia y D-07. Un Volume no puede registrarse simultáneamente como tabla UC.
 
 ## Tamaño y archivos iniciales
 
@@ -45,7 +45,7 @@ El resultado deja visible el trade-off: antes de `OPTIMIZE`, el layout Delta por
 
 ## Delta post-OPTIMIZE
 
-Se ejecutó `OPTIMIZE oceanwatch_g07.analytics.ais_positions_d07_delta` sin `ZORDER BY`, pues la tabla fue creada con liquid clustering `CLUSTER BY (MMSI, BaseDateTime)`. Duró **7.523 s**. Sus métricas informaron `numFilesAdded=0`, `numFilesRemoved=0` y `partitionsOptimized=0`: no hubo reescritura física.
+Se ejecutó `OPTIMIZE oceanwatch_g06.analytics.ais_positions_d07_delta` sin `ZORDER BY`, pues la tabla fue creada con liquid clustering `CLUSTER BY (MMSI, BaseDateTime)`. Duró **7.523 s**. Sus métricas informaron `numFilesAdded=0`, `numFilesRemoved=0` y `partitionsOptimized=0`: no hubo reescritura física.
 
 `DESCRIBE DETAIL` se mantuvo en **1,454,406,725 bytes** y **24 archivos**. Las diferencias de tiempo posteriores se interpretan como variación de ejecución o calentamiento de sesión, no como una mejora atribuible a `OPTIMIZE`.
 
