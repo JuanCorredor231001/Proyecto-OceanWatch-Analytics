@@ -15,7 +15,7 @@
 # COMMAND ----------
 
 # Identificador provisional neutral; reemplazar únicamente tras acordarlo con el equipo.
-TEAM_ID = "g07"
+TEAM_ID = "g06"
 
 # Validación defensiva para usar el identificador de forma segura en sentencias SQL.
 if not TEAM_ID.replace("_", "").isalnum() or TEAM_ID != TEAM_ID.lower():
