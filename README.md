@@ -91,11 +91,10 @@ El comando deja un reporte JSON regenerable e ignorado por Git en el directorio 
 .
 |- notebooks/       # notebooks PySpark exportados en formato legible en GitHub
 |- docs/            # decisiones, evidencias, fuentes y material de apoyo ligero
-|- config/          # ejemplos de configuración sin secretos
-|- Datos/           # CSV locales de prototipado; ignorados por Git
+|- scripts/            # scripts apoyo local
 |- README.md
-|- BITACORA.md
-`- .gitignore
+|- Enunciado.pdf
+|- Documento.pdf
 ```
 
 ## Convención de notebooks
