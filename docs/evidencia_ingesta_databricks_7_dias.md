@@ -1,6 +1,6 @@
 # Evidencia de ingesta Databricks - siete días AIS
 
-Fecha de ejecución: 2026-09-14. Entorno: Databricks Free Edition serverless, Spark 4.2.0. Destino: `/Volumes/oceanwatch_g07/landing/raw_ais`.
+Fecha de ejecución: 2026-09-14. Entorno: Databricks Free Edition serverless, Spark 4.2.0. Destino: `/Volumes/oceanwatch_g06/landing/raw_ais`.
 
 ## Cierre previo: 01-jun
 
