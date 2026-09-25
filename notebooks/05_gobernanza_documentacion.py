@@ -10,7 +10,7 @@
 
 from pyspark.sql import functions as F
 
-CATALOG = "oceanwatch_g07"
+CATALOG = "oceanwatch_g06"
 RAW_VOLUME = f"{CATALOG}.landing.raw_ais"
 WPI_VOLUME = f"{CATALOG}.reference.world_port_index"
 BENCHMARK_VOLUME = f"{CATALOG}.analytics.benchmark_files"
@@ -63,4 +63,4 @@ display(spark.sql(f"SHOW GRANTS ON TABLE {DELTA_TABLE}"))
 # MAGIC %md
 # MAGIC ## Resumen ejecutivo
 # MAGIC
-# MAGIC El catálogo `oceanwatch_g07` organiza el proyecto AIS en tres esquemas funcionales. `landing.raw_ais` conserva la fuente y `reference.world_port_index` la referencia WPI. `analytics.ais_positions_d07_delta` es el artefacto analítico oficial y documenta procedencia y D-07; `analytics.benchmark_files` conserva únicamente la línea base Parquet del requisito 4. Propietarios y permisos se reportan desde Unity Catalog según la configuración efectiva de Free Edition.
+# MAGIC El catálogo `oceanwatch_g06` organiza el proyecto AIS en tres esquemas funcionales. `landing.raw_ais` conserva la fuente y `reference.world_port_index` la referencia WPI. `analytics.ais_positions_d07_delta` es el artefacto analítico oficial y documenta procedencia y D-07; `analytics.benchmark_files` conserva únicamente la línea base Parquet del requisito 4. Propietarios y permisos se reportan desde Unity Catalog según la configuración efectiva de Free Edition.

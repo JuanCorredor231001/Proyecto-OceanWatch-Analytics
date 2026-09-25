@@ -10,7 +10,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType
 from pyspark.sql.window import Window
 
-TEAM_ID = "g07"
+TEAM_ID = "g06"
 ROOT = f"/Volumes/oceanwatch_{TEAM_ID}/landing/raw_ais"
 DATES = ["2023-06-01", "2023-06-02", "2023-06-03", "2023-06-04", "2023-06-05", "2023-06-06", "2023-06-07"]
 EXPECTED_ROWS = 60_533_559
@@ -18,6 +18,7 @@ SCHEMA = StructType([
  StructField("MMSI",StringType(),True),StructField("BaseDateTime",StringType(),True),StructField("LAT",DoubleType(),True),StructField("LON",DoubleType(),True),StructField("SOG",DoubleType(),True),StructField("COG",DoubleType(),True),StructField("Heading",DoubleType(),True),StructField("VesselName",StringType(),True),StructField("IMO",StringType(),True),StructField("CallSign",StringType(),True),StructField("VesselType",IntegerType(),True),StructField("Status",IntegerType(),True),StructField("Length",DoubleType(),True),StructField("Width",DoubleType(),True),StructField("Draft",DoubleType(),True),StructField("Cargo",IntegerType(),True),StructField("TransceiverClass",StringType(),True)
 ])
 paths = [f"{ROOT}/extracted/ingestion_date={d}/AIS_{d.replace('-', '_')}.csv" for d in DATES]
+# Se agrega la fecha de ingesta a partir de la ruta del archivo para conservar el origen de cada registro y habilitar análisis por día sin depender del nombre del CSV.
 ais = (spark.read.option("header","true").option("enforceSchema","false").option("mode","FAILFAST").schema(SCHEMA).csv(paths)
  .withColumn("ingestion_date",F.regexp_extract(F.col("_metadata.file_path"),r"ingestion_date=(\d{4}-\d{2}-\d{2})",1)))
 
@@ -28,16 +29,20 @@ ais = (spark.read.option("header","true").option("enforceSchema","false").option
 
 # COMMAND ----------
 
+# Se generan métricas de cobertura por día y un resumen semanal para validar que los siete archivos fueron cargados correctamente y conocer el volumen de posiciones AIS y buques únicos observados en el período analizado.
 daily = ais.groupBy("ingestion_date").agg(F.count("*").alias("posiciones"),F.countDistinct("MMSI").alias("mmsi_unicos"))
 weekly = ais.agg(F.count("*").alias("posiciones"),F.countDistinct("MMSI").alias("mmsi_unicos")).withColumn("ingestion_date",F.lit("TOTAL_SEMANA"))
 display(daily.unionByName(weekly.select(daily.columns)).orderBy("ingestion_date"))
 
 # COMMAND ----------
 
+# Distribución de posiciones AIS por tipo de embarcación. 
+# Los valores nulos se conservan explícitamente como "NULL" para evaluar la calidad del dato y cuantificar registros sin clasificación de buque.
 display(ais.groupBy(F.coalesce(F.col("VesselType").cast("string"),F.lit("NULL")).alias("vessel_type")).count().withColumnRenamed("count","posiciones").orderBy(F.desc("posiciones")))
 
 # COMMAND ----------
 
+# Segmentación de las embarcaciones por eslora (Length) y manga (Width). Los valores se agrupan en rangos de tamaño para identificar la distribución de posiciones AIS por tipo de dimensión y evidenciar posibles valores faltantes.
 sizes = ais.select(
  F.when(F.col("Length").isNull(),"NULL").when(F.col("Length")<20,"<20 m").when(F.col("Length")<50,"20-<50 m").when(F.col("Length")<100,"50-<100 m").when(F.col("Length")<200,"100-<200 m").otherwise(">=200 m").alias("rango_length"),
  F.when(F.col("Width").isNull(),"NULL").when(F.col("Width")<10,"<10 m").when(F.col("Width")<20,"10-<20 m").when(F.col("Width")<40,"20-<40 m").otherwise(">=40 m").alias("rango_width"))
@@ -51,6 +56,8 @@ display(sizes.groupBy("rango_length","rango_width").count().withColumnRenamed("c
 # COMMAND ----------
 
 # Un solo agregado para nulos, límites y sentinelas sobre el corpus completo.
+# Perfilamiento de calidad del dataset AIS:
+# se cuantifican valores nulos, coordenadas fuera de rango, velocidades inválidas y códigos sentinela definidos por el estándar AIS, con el fin de evaluar la completitud y consistencia del corpus.
 metrics=[F.count("*").alias("total")]
 metrics += [F.sum(F.col(c).isNull().cast("long")).alias(f"null__{c}") for c in SCHEMA.fieldNames()]
 metrics += [
@@ -78,6 +85,8 @@ display(ais.groupBy(F.coalesce(F.col("TransceiverClass"),F.lit("NULL")).alias("t
 
 # COMMAND ----------
 
+# Clasificación de registros con MMSI inválido para identificar la causa de incumplimiento del estándar AIS (9 dígitos numéricos).
+# Se distinguen valores nulos, vacíos, con caracteres no numéricos y longitudes diferentes a las esperadas.
 invalid=ais.filter(~F.col("MMSI").rlike(r"^[0-9]{9}$")).withColumn("patron_mmsi",
  F.when(F.col("MMSI").isNull()|(F.length(F.trim(F.col("MMSI")))==0),"nulo_o_vacio").when(~F.col("MMSI").rlike(r"^[0-9]+$"),"contiene_no_digitos").when(F.length("MMSI")<9,"numerico_menos_9_digitos").when(F.length("MMSI")>9,"numerico_mas_9_digitos").otherwise("otro"))
 display(invalid.groupBy("patron_mmsi").agg(F.count("*").alias("posiciones"),F.countDistinct("MMSI").alias("mmsi_distintos")).orderBy(F.desc("posiciones")))
@@ -85,6 +94,8 @@ display(invalid.groupBy("MMSI","patron_mmsi").count().withColumnRenamed("count",
 
 # COMMAND ----------
 
+# Identificación de registros completamente duplicados.
+# Se agrupan todas las columnas originales del esquema AIS para detectar filas idénticas y cuantificar cuántas copias adicionales existen en el corpus.
 dups=ais.groupBy(*SCHEMA.fieldNames()).count().filter(F.col("count")>1)
 display(dups.agg(F.count("*").alias("grupos_duplicados_exactos"),F.sum("count").alias("filas_en_grupos"),F.sum(F.col("count")-1).alias("copias_adicionales")))
 
@@ -97,6 +108,8 @@ display(dups.agg(F.count("*").alias("grupos_duplicados_exactos"),F.sum("count").
 
 # COMMAND ----------
 
+# Construcción de trayectorias por embarcación a partir de posiciones AIS consecutivas.
+# Para cada MMSI se calcula el intervalo de tiempo entre reportes, la distancia recorrida mediante la fórmula de Haversine y la velocidad implícita. Esto permite identificar movimientos físicamente plausibles y cuantificar observaciones que deben excluirse por brechas temporales o velocidades irrealistas.
 events=ais.select("MMSI","LAT","LON",F.to_timestamp("BaseDateTime","yyyy-MM-dd'T'HH:mm:ss").alias("event_ts")).filter(F.col("MMSI").rlike(r"^[0-9]{9}$"))
 w=Window.partitionBy("MMSI").orderBy("event_ts")
 pairs=(events.withColumn("prev_ts",F.lag("event_ts").over(w)).withColumn("prev_lat",F.lag("LAT").over(w)).withColumn("prev_lon",F.lag("LON").over(w)).filter(F.col("prev_ts").isNotNull()).withColumn("gap_hours",(F.col("event_ts").cast("long")-F.col("prev_ts").cast("long"))/F.lit(3600.0)))

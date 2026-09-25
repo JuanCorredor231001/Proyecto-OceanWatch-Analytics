@@ -8,10 +8,12 @@
 
 # COMMAND ----------
 
+# Carga unificada de los siete archivos AIS con esquema explícito.
+# Se agrega la columna ingestion_date a partir de la ruta del archivo para conservar la fecha de origen de cada posición y habilitar análisis diarios sobre el período 01-07 de junio de 2023.
 from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType
 
-ROOT = "/Volumes/oceanwatch_g07/landing/raw_ais"
+ROOT = "/Volumes/oceanwatch_g06/landing/raw_ais"
 DATES = ["2023-06-01","2023-06-02","2023-06-03","2023-06-04","2023-06-05","2023-06-06","2023-06-07"]
 SCHEMA = StructType([StructField("MMSI",StringType(),True),StructField("BaseDateTime",StringType(),True),StructField("LAT",DoubleType(),True),StructField("LON",DoubleType(),True),StructField("SOG",DoubleType(),True),StructField("COG",DoubleType(),True),StructField("Heading",DoubleType(),True),StructField("VesselName",StringType(),True),StructField("IMO",StringType(),True),StructField("CallSign",StringType(),True),StructField("VesselType",IntegerType(),True),StructField("Status",IntegerType(),True),StructField("Length",DoubleType(),True),StructField("Width",DoubleType(),True),StructField("Draft",DoubleType(),True),StructField("Cargo",IntegerType(),True),StructField("TransceiverClass",StringType(),True)])
 paths = [f"{ROOT}/extracted/ingestion_date={d}/AIS_{d.replace('-', '_')}.csv" for d in DATES]
@@ -20,6 +22,7 @@ raw_ais=(spark.read.option("header","true").option("enforceSchema","false").opti
 # COMMAND ----------
 
 # Conjunto canónico virtual D-07: no persiste ni escribe resultados intermedios.
+# Construcción del conjunto canónico de análisis. Se eliminan duplicados exactos y se comparan los conteos de embarcaciones distintas por día antes y después de excluir MMSI que no cumplen el formato AIS estándar de 9 dígitos.
 canonical_ais=raw_ais.dropDuplicates(SCHEMA.fieldNames())
 valid_mmsi_ais=canonical_ais.filter(F.col("MMSI").rlike(r"^[0-9]{9}$"))
 with_invalid=canonical_ais.groupBy("ingestion_date").agg(F.countDistinct("MMSI").alias("mmsi_distintos_sin_excluir"))
@@ -28,6 +31,8 @@ display(with_invalid.join(valid_only,"ingestion_date").withColumn("efecto_exclus
 
 # COMMAND ----------
 
+# Comparación entre conteos exactos y aproximados de embarcaciones distintas.
+# Se evalúa el error de approx_count_distinct frente al valor exacto para determinar si una aproximación sería suficiente en escenarios de mayor escala.
 exact_by_day=valid_mmsi_ais.groupBy("ingestion_date").agg(F.countDistinct("MMSI").alias("count_distinct_exacto"))
 approx_by_day=valid_mmsi_ais.groupBy("ingestion_date").agg(F.approx_count_distinct("MMSI").alias("approx_count_distinct"))
 comparison=(exact_by_day.join(approx_by_day,"ingestion_date").withColumn("diferencia_absoluta",F.abs(F.col("approx_count_distinct")-F.col("count_distinct_exacto"))).withColumn("diferencia_porcentaje",F.round(100*F.col("diferencia_absoluta")/F.col("count_distinct_exacto"),4)).orderBy("ingestion_date"))
@@ -35,6 +40,8 @@ display(comparison)
 
 # COMMAND ----------
 
+# Comparación de planes físicos de ejecución.
+# Se documentan los operadores utilizados por Spark para los conteos exactos y aproximados, con el fin de justificar la selección de la estrategia usada en el análisis de embarcaciones distintas por día.
 print("=== PLAN countDistinct exacto ===")
 exact_by_day.explain("formatted")
 print("=== PLAN approx_count_distinct ===")
@@ -56,6 +63,7 @@ approx_by_day.explain("formatted")
 
 # COMMAND ----------
 
+# Catálogo de tipos de embarcación basado en las clasificaciones AIS utilizadas por NOAA y USCG. Se utiliza posteriormente para traducir los códigos VesselType a descripciones comprensibles en los análisis.
 VESSEL_TYPE_CATALOG = [
     (30, "Fishing"), (31, "Towing"), (32, "Towing: tow >200m or breadth >25m"),
     (33, "Dredging or underwater operations"), (34, "Diving operations"),
@@ -109,6 +117,10 @@ traffic_by_type.explain("formatted")
 from pyspark.sql.window import Window
 
 # D-07 ya eliminó copias exactas y MMSI no conformes antes de crear trayectorias.
+
+# Cálculo de distancia recorrida por embarcación.
+# Se construyen trayectorias a partir de posiciones AIS consecutivas, se estima la distancia geodésica mediante la fórmula de Haversine y se excluyen pares de observaciones con intervalos temporales o velocidades incompatibles con una trayectoria físicamente plausible.
+
 events = valid_mmsi_ais.select("MMSI", "VesselName", "VesselType", "LAT", "LON", F.to_timestamp("BaseDateTime", "yyyy-MM-dd'T'HH:mm:ss").alias("event_ts"))
 window_mmsi = Window.partitionBy("MMSI").orderBy("event_ts")
 pairs = (events.withColumn("prev_ts", F.lag("event_ts").over(window_mmsi))
@@ -135,7 +147,13 @@ vessel_info = valid_mmsi_ais.groupBy("MMSI").agg(
     F.countDistinct("VesselType").alias("tipos_distintos"),
 )
 top10_distance = (distance_by_mmsi.join(vessel_info, "MMSI", "left")
-    .withColumn("velocidad_media_implicita_kn", F.col("distance_km") / F.col("horas_elegibles") / F.lit(1.852))
+    .withColumn(
+        "velocidad_media_implicita_kn",
+        F.when(
+        F.col("horas_elegibles") > 0,
+        F.col("distance_km") / F.col("horas_elegibles") / F.lit(1.852)
+        )
+    )
     .withColumn("velocidad_semana_calendario_kn", F.col("distance_km") / F.lit(168 * 1.852))
     .orderBy(F.desc("distance_km")).limit(10))
 display(top10_distance.select("MMSI", "VesselName", "VesselType", F.round("distance_km", 2).alias("distance_km"), F.round("velocidad_media_implicita_kn", 2).alias("velocidad_media_implicita_kn"), F.round("velocidad_semana_calendario_kn", 2).alias("velocidad_semana_calendario_kn"), "pares_elegibles", "pares_excluidos", "nombres_distintos", "tipos_distintos"))
@@ -160,10 +178,13 @@ import hashlib
 import os
 import requests
 
+# Carga del World Port Index (WPI) como conjunto de referencia geográfica.
+# Este catálogo se utilizará posteriormente para contextualizar las celdas H3 más transitadas y asociarlas con puertos cercanos cuando sea posible.
+
 WPI_URL = "https://msi.nga.mil/api/publications/download?type=view&key=16920959/SFH00000/UpdatedPub150.csv"
-WPI_VOLUME = "/Volumes/oceanwatch_g07/reference/world_port_index"
+WPI_VOLUME = "/Volumes/oceanwatch_g06/reference/world_port_index"
 WPI_PATH = f"{WPI_VOLUME}/UpdatedPub150.csv"
-spark.sql("CREATE VOLUME IF NOT EXISTS oceanwatch_g07.reference.world_port_index COMMENT 'World Port Index (NGA Pub. 150); referencia para asociación de celdas H3 a puertos.'")
+spark.sql("CREATE VOLUME IF NOT EXISTS oceanwatch_g06.reference.world_port_index COMMENT 'World Port Index (NGA Pub. 150); referencia para asociación de celdas H3 a puertos.'")
 os.makedirs(WPI_VOLUME, exist_ok=True)
 if not os.path.exists(WPI_PATH):
     response = requests.get(WPI_URL, timeout=120)
@@ -180,12 +201,29 @@ print(f"Puertos WPI con coordenadas: {ports.count()}")
 
 # COMMAND ----------
 
+spark.read.option("header","true").csv(WPI_PATH) \
+.select("Latitude","Longitude") \
+.filter(
+~F.col("Latitude").rlike(r"^-?\d+(\.\d+)?$")
+|
+~F.col("Longitude").rlike(r"^-?\d+(\.\d+)?$")
+) \
+.count()
+
+# COMMAND ----------
+
+# Identificación de las celdas H3 más transitadas.
+# Cada posición AIS se asigna a una celda hexagonal H3 de resolución 8, se contabiliza el tráfico por celda y posteriormente se relacionan los centroides de las celdas más frecuentes con puertos del World Port Index.
+
 h3_positions = canonical_ais.select(F.expr("h3_longlatash3(LON, LAT, 8)").alias("h3_r8"))
 top_h3 = h3_positions.groupBy("h3_r8").count().withColumnRenamed("count", "posiciones").orderBy(F.desc("posiciones")).limit(10)
 top_cells = (top_h3.withColumn("h3_hex", F.expr("h3_h3tostring(h3_r8)"))
     .withColumn("center_wkt", F.expr("h3_centeraswkt(h3_r8)"))
-    .withColumn("center_lon", F.regexp_extract("center_wkt", r"POINT\\s*\\(([-0-9.]+)\\s+[-0-9.]+\\)", 1).cast("double"))
-    .withColumn("center_lat", F.regexp_extract("center_wkt", r"POINT\\s*\\([-0-9.]+\\s+([-0-9.]+)\\)", 1).cast("double")))
+   # .withColumn("center_lon", F.regexp_extract("center_wkt", r"POINT\\s*\\(([-0-9.]+)\\s+[-0-9.]+\\)", 1).cast("double"))
+   # .withColumn("center_lat", F.regexp_extract("center_wkt", r"POINT\\s*\\([-0-9.]+\\s+([-0-9.]+)\\)", 1).cast("double"))
+   .withColumn("center_lon",F.split(F.regexp_replace(F.regexp_replace("center_wkt", "POINT\\(", ""),"\\)", "")," ").getItem(0).cast("double"))
+   .withColumn("center_lat",F.split(F.regexp_replace(F.regexp_replace("center_wkt", "POINT\\(", ""),"\\)", "")," ").getItem(1).cast("double"))
+)
 
 # Solo se cruzan 10 centroides con la referencia pequeña WPI; el broadcast se verifica en el plan.
 port_candidates = (top_cells.crossJoin(F.broadcast(ports))
@@ -205,6 +243,9 @@ top_cells_with_ports = (port_candidates.groupBy("h3_r8", "h3_hex", "posiciones",
 display(top_cells_with_ports)
 
 # COMMAND ----------
+
+# Análisis de sensibilidad de la asociación puerto-celda.
+# Se compara cuántas de las celdas H3 más transitadas pueden asociarse a un puerto del World Port Index utilizando radios de 1 km, 2 km y 5 km, con el fin de evaluar qué tan dependientes son las conclusiones del umbral espacial elegido.
 
 sensitivity_d03 = top_cells_with_ports.agg(
     F.sum(F.col("asociada_1km").cast("int")).alias("celdas_asociadas_1km"),
