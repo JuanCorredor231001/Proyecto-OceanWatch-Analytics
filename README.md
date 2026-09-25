@@ -22,10 +22,9 @@ El notebook de ingesta descarga los archivos diarios desde los enlaces oficiales
 
 ## Reproducibilidad en Databricks Free Edition
 
-1. Crear un catálogo y esquemas propios en Unity Catalog; registrar sus nombres en `config/` sin incluir secretos.
-2. Crear o seleccionar un Volume para los archivos descargados y descomprimidos.
+1. El usuario debe tener acceso a Unity Catalog.
+2. Ejecutar el notebook 00_configuracion_unity_catalog, que crea los objetos necesarios para el proyecto.
 3. Ejecutar los notebooks en este orden:
-   - `00_configuracion_unity_catalog`
    - `01_ingesta_ais`
    - `02_perfilamiento_calidad`
    - `03_preguntas_negocio`
@@ -33,8 +32,11 @@ El notebook de ingesta descarga los archivos diarios desde los enlaces oficiales
    - `05_gobernanza_documentacion`
 4. Cada notebook debe incluir sus parámetros, celdas Markdown, validaciones y evidencia de planes de ejecución cuando aplique.
 
+Notas:
+Los notebooks fueron validados en Databricks Free Edition.
+Si existen archivos AIS descargados previamente, la ingesta puede reutilizarlos.
+Para una ejecución completamente limpia se recomienda eliminar previamente los directorios downloads y extracted del Volume.
 Free Edition serverless no permite `cache()` ni `persist()`, por lo que los notebooks no dependen de esas APIs.
-
 En serverless con Unity Catalog, `input_file_name()` no está disponible. El origen se identifica con `_metadata.file_path`, incluida la evidencia de archivos leídos del requisito 4.
 
 ## Entorno local de desarrollo
