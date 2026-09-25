@@ -47,10 +47,10 @@ Estas decisiones permitieron avanzar sin detener el proyecto. Si el profesor ind
 
 ## D-06 - Convención de Unity Catalog
 
-- **Decisión vigente:** catálogo provisional `oceanwatch_g07`; esquemas `landing`, `reference` y `analytics`; Volume `landing.raw_ais`.
+- **Decisión vigente:** catálogo provisional `oceanwatch_g06`; esquemas `landing`, `reference` y `analytics`; Volume `landing.raw_ais`.
 - **Uso:** `landing` conserva la tabla AIS con esquema explícito; `reference` alberga World Port Index y catálogo de tipos; `analytics` contiene resultados y la tabla optimizada de consulta.
 - **Justificación:** la convención expresa la función de cada activo sin presentar un pipeline bronze/silver/gold, que no hace parte del alcance de la Entrega 1.
-- **Pendiente de confirmar con el equipo:** `g07` es un placeholder neutral sin datos personales. Sustituirlo por un nombre corto o iniciales acordadas, en minúsculas y con guiones bajos, antes de una entrega final. Si se cambia después de crear activos, registrar la migración y actualizar README/bitácora.
+- **Pendiente de confirmar con el equipo:** `g06` es un placeholder neutral sin datos personales. Sustituirlo por un nombre corto o iniciales acordadas, en minúsculas y con guiones bajos, antes de una entrega final. Si se cambia después de crear activos, registrar la migración y actualizar README/bitácora.
 
 ## H3 en Databricks Free Edition
 
