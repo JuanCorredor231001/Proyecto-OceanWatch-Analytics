@@ -22,7 +22,9 @@ Pipeline completo del lakehouse de tráfico marítimo AIS (NOAA / Marine Cadastr
 | 6 | ML con MLflow (10) | `src/oceanwatch/ml.py`, `notebooks/07-09` | [11 ML](docs/evidencias/11%20evidencia_ml.md) |
 | 7 | Repositorio y bitácora (5) | este repositorio | [bitácora](docs/decisiones/BITACORA.md), [decisiones E2](docs/decisiones/decisiones_entrega2.md) |
 | Despliegue | Databricks (`oceanwatch_g07`, serverless) | `databricks.yml` | [12 Databricks](docs/evidencias/12%20evidencia_databricks.md) |
-| Bono | Delta Sharing (+5) | `notebooks/13_*`, `14_*` | Pendiente de ejecutar en los workspaces |
+| Bono | Delta Sharing (+5) | `notebooks/13_*`, `14_*` | [13 Delta Sharing](docs/evidencias/13%20evidencia_delta_sharing.md): share creado; destinatario bloqueado porque el metastore no tiene habilitado el sharing externo |
+
+Las capturas del workspace están en [`docs/evidencias/capturas/`](docs/evidencias/capturas/). Lo que falta está en el [plan de cierre](docs/plan_cierre_entrega2.md).
 
 La arquitectura y el flujo están en [docs/arquitectura.md](docs/arquitectura.md).
 
@@ -33,7 +35,7 @@ Entrega_2/
 |- src/oceanwatch/       # librería única del pipeline (Databricks y local)
 |- notebooks/            # notebooks Databricks: envoltorios delgados por tarea del job
 |- resources/            # Databricks Asset Bundle: jobs diario y backfill, tablero
-|- databricks.yml        # definición del bundle (variables: catálogo, warehouse, correo)
+|- databricks.yml        # definición del bundle (variables: catálogo, warehouse)
 |- contracts/            # contrato de datos de oro (YAML, fuente del DDL y la validación)
 |- dashboards/           # tablero AI/BI (.lvdash.json) y sus consultas SQL
 |- scripts/              # orquestador local, demo de tolerancia a fallos, evidencias, generador del tablero
@@ -66,9 +68,16 @@ databricks bundle run oceanwatch_diario -t institucional --params fecha=auto
 ```
 
 4. El job diario queda programado a las 06:00 (America/Bogota) con `fecha=auto`. Cada ejecución procesa el siguiente día pendiente del feed (08 a 14 de junio de 2023) y, al terminar, refresca el tablero.
-5. Ejecutar `notebooks/12_gobernanza.py` con los nombres de los grupos del workspace.
+5. Ejecutar `notebooks/12_gobernanza.py` con un principal por rol. Sin administrador de la cuenta no hay grupos de cuenta; se usaron service principals ([evidencia 10](docs/evidencias/10%20evidencia_gobernanza.md)).
 
-> **Estado en el workspace:** el bundle se desplegó, el backfill 01-07 jun y el job diario del 08-jun terminaron con éxito ([evidencia 12](docs/evidencias/12%20evidencia_databricks.md)). Falta correr el feed 09-14 jun y capturar la evidencia visual ([plan de cierre](docs/plan_cierre_entrega2.md)). Si la importación del tablero falla por cambios de esquema de AI/BI, las consultas de `dashboards/sql/` sirven para reconstruirlo; `scripts/generar_tablero.py --catalogo <catálogo>` regenera el `.lvdash.json`.
+> **Estado en el workspace (2026-11-07):**
+> - Backfill 01-07 jun y feed 08-14 jun procesados (bronce = CSV NOAA; plata + cuarentena = bronce).
+> - El cron de las 06:00 disparó una corrida `PERIODIC` que cortó el DAG al no quedar días pendientes ([evidencia 12](docs/evidencias/12%20evidencia_databricks.md)).
+> - Tablero publicado sin widgets inválidos ([evidencia 09](docs/evidencias/09%20evidencia_tablero.md)).
+> - Gobernanza aplicada ([evidencia 10](docs/evidencias/10%20evidencia_gobernanza.md)).
+> - Modelo `champion` v3 puntuando los 14 días ([evidencia 11](docs/evidencias/11%20evidencia_ml.md)).
+>
+> Si la importación del tablero falla por cambios de esquema de AI/BI, las consultas de `dashboards/sql/` sirven para reconstruirlo; `scripts/generar_tablero.py --catalogo <catálogo>` regenera el `.lvdash.json`.
 
 ## Prueba local (Docker)
 

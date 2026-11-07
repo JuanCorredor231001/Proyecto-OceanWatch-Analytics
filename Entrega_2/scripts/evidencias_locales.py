@@ -126,10 +126,10 @@ def preview(results) -> None:
                  f"{kpi.buques_en_puerto_al_cierre:,} · anomalías {kpi.anomalias:,}", fontsize=13)
     ax = fig.add_subplot(2, 2, 1)
     m = sel["02_mapa_intensidad_celda"]
-    sc = ax.scatter(m.centro_lon, m.centro_lat, c=m.intensidad_log10, s=1, cmap="inferno")
+    sc = ax.scatter(m.celda_lon, m.celda_lat, c=m.intensidad_log10, s=2, cmap="inferno")
     a = sel["06_anomalias_dia"]
     ax.scatter(a.lon_ultima, a.lat_ultima, marker="x", c="cyan", s=30, label="anomalías")
-    ax.set_xlim(-180, -60); ax.set_ylim(10, 72); ax.set_title("Intensidad de tráfico por celda H3 r8 (log10 posiciones)")
+    ax.set_xlim(-180, -60); ax.set_ylim(10, 72); ax.set_title("Intensidad de tráfico, rejilla 0.05° desde H3 r8 (log10 posiciones)")
     ax.legend(loc="lower left"); fig.colorbar(sc, ax=ax)
     ax = fig.add_subplot(2, 2, 2)
     r = sel["04_ranking_puertos"].sort_values("ranking").head(15)[::-1]

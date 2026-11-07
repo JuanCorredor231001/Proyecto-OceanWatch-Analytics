@@ -53,6 +53,17 @@ Repetición del 2026-11-07, corrida `20261107T023625-29c49e` con los 14 ZIP ya e
 - **Backfill:** la segunda corrida del backfill 01-jun (`20261106T135415-cf220f`), después de corregir `ml_entrenar`, leyó **0 filas nuevas** en bronce y plata (checkpoints). Oro se reescribió con los mismos conteos: 1,996 trayectorias, 838,048 posiciones.
 - **v2:** al cambiar la regla de estadías (D-E2-07 v2), se re-ejecutó el DAG diario con `--fecha` explícita para 01, 08 y 09 de junio. Bronce y plata no cambiaron y oro se reemplazó por fecha con `replaceWhere` ([`logs/reproceso_oro_v2.log`](logs/reproceso_oro_v2.log)).
 
-## Pendiente en el workspace institucional
+## En el workspace institucional
 
-Capturar desde la UI de Jobs: el grafo de tareas, una corrida programada, el historial de reintentos y la notificación de falla. Es la misma configuración del YAML; desde este entorno no hay credenciales del workspace.
+- **Feed 08-14 jun:** 7 corridas `fecha=auto`, todas SUCCESS. Bronce = filas del CSV y plata + cuarentena = bronce en cada día ([evidencia 12](12%20evidencia_databricks.md#feed-completo-08-14-jun-verificado-el-2026-11-07)).
+- **Ejecución programada:** corrida `576486414020707` con trigger `PERIODIC` (cron 06:00 America/Bogota, 2026-11-07). Sin días pendientes, `hay_fecha_pendiente = false` y las 9 tareas siguientes quedaron `SKIPPED/EXCLUDED` ([evidencia 12](12%20evidencia_databricks.md#ejecución-programada-y-fin-del-feed)).
+- **Reintentos:** en el backfill, `bronce_streaming` falló y se reintentó sin duplicar filas (evidencia 12, tabla de reparaciones).
+- **Alertas:** `on_failure` y `on_duration_warning_threshold_exceeded` → `j.corredor2@uniandes.edu.co` (desplegado el 2026-11-07).
+
+**Capturas de la UI de Jobs:**
+
+| Corrida programada `576486414020707` (*Launched: By scheduler*, 41 s, `fecha=auto`) | Feed 14-jun `218049826264968`: 11 tareas en orden, SUCCESS en 5 min 18 s |
+|---|---|
+| ![Corrida programada](capturas/08a_job_corrida_programada.jpg) | ![Línea de tiempo](capturas/08b_job_feed_14jun_timeline.jpg) |
+
+Pendiente: una corrida fallida en el workspace que muestre reintentos y el correo de alerta. Hoy los reintentos en Databricks solo están documentados en las reparaciones del backfill (evidencia 12).

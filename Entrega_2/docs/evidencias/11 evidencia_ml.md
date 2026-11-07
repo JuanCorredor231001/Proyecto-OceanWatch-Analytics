@@ -33,6 +33,23 @@ Entrenamiento y puntuación usan la **misma función de variables**, así que no
 
 **Primer intento fallido (registrado en `ops.pipeline_runs`).** MLflow 3.18 serializa scikit-learn con `skops` y rechazó los tipos `numpy.dtype` y `sklearn.tree._tree.Tree`. Se declararon explícitamente como `skops_trusted_types` y el reproceso funcionó.
 
-## Pendiente en el workspace institucional
+## En el workspace institucional (verificado el 2026-11-07)
 
-Ejecutar `08_ml_entrenar` con los 7 días históricos completos y capturar el experimento y la versión registrada en Catalog Explorer.
+El job de backfill (`888154898396381`) entrenó el modelo con los **7 días históricos completos**. Datos leídos de la API de MLflow y de Unity Catalog:
+
+| Elemento | Valor |
+|---|---|
+| Experimento | `/Shared/oceanwatch/anomalias_velocidad` (id `4196079514500715`) |
+| Run vigente | `ca6f949f7bb3476eb3f198928ca5ef0c` (`isoforest_2023-06-01_2023-06-07`), FINISHED, 18.6 s; origen: run `110747360612499` del job de backfill |
+| Parámetros | IsolationForest, `contamination = 0.01`, `n_estimators = 200`, `random_state = 42`, `min_posiciones = 10`, 10 variables, fechas 01-07 jun |
+| Métricas | `n_entrenamiento = 131,613` buque-día; `tasa_anomalias = 0.0100`; `score_p50 = 0.3962`; `score_p99 = 0.6798`; `score_max = 0.7926` |
+| Modelo en Unity Catalog | `oceanwatch_g07.ml.oceanwatch_anomalias_velocidad`: versiones 1, 2 y 3 en estado READY; **alias `champion` → v3** |
+| Puntuación | `gold.anomalias_velocidad_diarias`: 14 días (01-14 jun), 287,145 buque-día, **3,098 anomalías**, todas con `modelo_version = 3` |
+
+**Versiones 1 y 2.** Corresponden a los runs `9050a911…` y `6655086b…`, que quedaron FAILED después de registrar el modelo, en los intentos fallidos de `ml_entrenar` durante el backfill (reparaciones descritas en la evidencia 12). Las métricas son idénticas a las de v3 porque el entrenamiento es determinista (`random_state = 42`). El alias se movió a v3 y la puntuación del feed solo usa v3, sin cambiar código, como prevé D-E2-08.
+
+**Capturas:**
+
+| Run de entrenamiento | Métricas y parámetros | Modelo en UC con `@champion` |
+|---|---|---|
+| ![Run](capturas/11a_mlflow_run_entrenamiento.jpg) | ![Métricas](capturas/11c_mlflow_metricas_parametros.jpg) | ![Modelo](capturas/11b_modelo_uc_champion.jpg) |

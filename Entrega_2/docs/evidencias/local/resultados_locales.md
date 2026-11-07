@@ -195,6 +195,47 @@ Muestra por buque `crc32(MMSI) % 10 == 0` (~10 % de los buques, trayectorias com
 | 20261106T150011-6e7c4d | 2023-06-09 | ml_features | 1 | EXITOSO | 8.6 | {"filas": 2150} |
 | 20261106T150011-6e7c4d | 2023-06-09 | ml_puntuar | 1 | EXITOSO | 9.8 | {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2150, "anomalias": 24} |
 | 20261106T150011-6e7c4d | 2023-06-09 | validar_contrato | 1 | EXITOSO | 16.5 | {"fecha": "2023-06-09", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []} |
+| 20261106T151723-9adb1e | 2023-06-01 | resolver_fecha | 1 | EXITOSO | 0 | {"fecha": "2023-06-01"} |
+| 20261106T151723-9adb1e | 2023-06-01 | aterrizar_feed | 1 | EXITOSO | 54.2 | {"fecha": "2023-06-01", "zip": "AIS_2023_06_01.zip", "zip_bytes": 343949892, "zip_sha256": "e6287c47f9659fd3bc |
+| 20261106T151723-9adb1e | 2023-06-01 | bronce_streaming | 1 | EXITOSO | 3.4 | {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T151723-9adb1e | 2023-06-01 | plata_calidad | 1 | EXITOSO | 3.2 | {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T151723-9adb1e | 2023-06-01 | monitorear_calidad | 1 | EXITOSO | 12.9 | {"fecha": "2023-06-01", "filas_bronce": 846338, "filas_plata": 838048, "filas_cuarentena": 8290, "cuarentena_c |
+| 20261106T151723-9adb1e | 2023-06-01 | oro_modelo | 1 | EXITOSO | 57.7 | {"trayectorias_diarias_buque": 1996, "estadias_puerto": 503, "trafico_celda_hora": 114493, "puertos_resumen_di |
+| 20261106T151723-9adb1e | 2023-06-01 | ml_features | 1 | EXITOSO | 9.9 | {"filas": 1996} |
+| 20261106T151723-9adb1e | 2023-06-01 | ml_puntuar | 1 | EXITOSO | 11.7 | {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 1996, "anomalias": 21} |
+| 20261106T151723-9adb1e | 2023-06-01 | validar_contrato | 1 | EXITOSO | 15 | {"fecha": "2023-06-01", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []} |
+| 20261106T152117-493026 | 2023-06-08 | resolver_fecha | 1 | EXITOSO | 0 | {"fecha": "2023-06-08"} |
+| 20261106T152117-493026 | 2023-06-08 | aterrizar_feed | 1 | EXITOSO | 57.9 | {"fecha": "2023-06-08", "zip": "AIS_2023_06_08.zip", "zip_bytes": 348931376, "zip_sha256": "72b7a149cb50de4d2e |
+| 20261106T152117-493026 | 2023-06-08 | bronce_streaming | 1 | EXITOSO | 2.3 | {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T152117-493026 | 2023-06-08 | plata_calidad | 1 | EXITOSO | 2.4 | {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T152117-493026 | 2023-06-08 | monitorear_calidad | 1 | EXITOSO | 4.1 | {"fecha": "2023-06-08", "filas_bronce": 872650, "filas_plata": 864428, "filas_cuarentena": 8222, "cuarentena_c |
+| 20261106T152117-493026 | 2023-06-08 | oro_modelo | 1 | EXITOSO | 35.4 | {"trayectorias_diarias_buque": 2054, "estadias_puerto": 532, "trafico_celda_hora": 123300, "puertos_resumen_di |
+| 20261106T152117-493026 | 2023-06-08 | ml_features | 1 | EXITOSO | 6.9 | {"filas": 2054} |
+| 20261106T152117-493026 | 2023-06-08 | ml_puntuar | 1 | EXITOSO | 3.4 | {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2054, "anomalias": 25} |
+| 20261106T152117-493026 | 2023-06-08 | validar_contrato | 1 | EXITOSO | 14.6 | {"fecha": "2023-06-08", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []} |
+| 20261106T152405-ad039f | 2023-06-09 | resolver_fecha | 1 | EXITOSO | 0 | {"fecha": "2023-06-09"} |
+| 20261106T152405-ad039f | 2023-06-09 | aterrizar_feed | 1 | EXITOSO | 54.4 | {"fecha": "2023-06-09", "zip": "AIS_2023_06_09.zip", "zip_bytes": 343405316, "zip_sha256": "b885617efa7c02f6ac |
+| 20261106T152405-ad039f | 2023-06-09 | bronce_streaming | 1 | EXITOSO | 2.1 | {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T152405-ad039f | 2023-06-09 | plata_calidad | 1 | EXITOSO | 2.2 | {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T152405-ad039f | 2023-06-09 | monitorear_calidad | 1 | EXITOSO | 3.6 | {"fecha": "2023-06-09", "filas_bronce": 859555, "filas_plata": 851120, "filas_cuarentena": 8435, "cuarentena_c |
+| 20261106T152405-ad039f | 2023-06-09 | oro_modelo | 1 | EXITOSO | 47.7 | {"trayectorias_diarias_buque": 2150, "estadias_puerto": 586, "trafico_celda_hora": 127873, "puertos_resumen_di |
+| 20261106T152405-ad039f | 2023-06-09 | ml_features | 1 | EXITOSO | 10 | {"filas": 2150} |
+| 20261106T152405-ad039f | 2023-06-09 | ml_puntuar | 1 | EXITOSO | 3.4 | {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2150, "anomalias": 24} |
+| 20261106T152405-ad039f | 2023-06-09 | validar_contrato | 1 | EXITOSO | 14.6 | {"fecha": "2023-06-09", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []} |
+| 20261106T152727-ec562c | 2023-06-01 | resolver_fecha | 1 | EXITOSO | 0 | {"fecha": "2023-06-01"} |
+| 20261106T152727-ec562c | 2023-06-01 | aterrizar_feed | 1 | EXITOSO | 4.1 | {"fecha": "2023-06-01", "zip": "AIS_2023_06_01.zip", "zip_bytes": 343949892, "zip_sha256": "e6287c47f9659fd3bc |
+| 20261106T152727-ec562c | 2023-06-01 | bronce_streaming | 1 | EXITOSO | 3.5 | {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T152727-ec562c | 2023-06-01 | plata_calidad | 1 | EXITOSO | 3.1 | {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T152727-ec562c | 2023-06-01 | monitorear_calidad | 1 | EXITOSO | 12.8 | {"fecha": "2023-06-01", "filas_bronce": 846338, "filas_plata": 838048, "filas_cuarentena": 8290, "cuarentena_c |
+| 20261106T152727-ec562c | 2023-06-01 | oro_modelo | 1 | EXITOSO | 57 | {"trayectorias_diarias_buque": 1996, "estadias_puerto": 503, "trafico_celda_hora": 114493, "puertos_resumen_di |
+| 20261106T152727-ec562c | 2023-06-01 | ml_features | 1 | EXITOSO | 10.3 | {"filas": 1996} |
+| 20261106T152727-ec562c | 2023-06-01 | ml_puntuar | 1 | EXITOSO | 13 | {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 1996, "anomalias": 21} |
+| 20261106T152727-ec562c | 2023-06-01 | validar_contrato | 1 | EXITOSO | 15.3 | {"fecha": "2023-06-01", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []} |
+| 20261106T153038-a9d05c | 2023-06-08 | resolver_fecha | 1 | EXITOSO | 0 | {"fecha": "2023-06-08"} |
+| 20261106T153038-a9d05c | 2023-06-08 | aterrizar_feed | 1 | EXITOSO | 4.1 | {"fecha": "2023-06-08", "zip": "AIS_2023_06_08.zip", "zip_bytes": 348931376, "zip_sha256": "72b7a149cb50de4d2e |
+| 20261106T153038-a9d05c | 2023-06-08 | bronce_streaming | 1 | EXITOSO | 2.1 | {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T153038-a9d05c | 2023-06-08 | plata_calidad | 1 | EXITOSO | 2.3 | {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []} |
+| 20261106T153038-a9d05c | 2023-06-08 | monitorear_calidad | 1 | EXITOSO | 3.6 | {"fecha": "2023-06-08", "filas_bronce": 872650, "filas_plata": 864428, "filas_cuarentena": 8222, "cuarentena_c |
 
 ## 5. MLflow: experimento y registro
 
@@ -210,22 +251,22 @@ Muestra por buque `crc32(MMSI) % 10 == 0` (~10 % de los buques, trayectorias com
 | 2023-06-08 | 2,054 | 864,428 | 96,236 | 81 | 172 | 25 |
 | 2023-06-09 | 2,150 | 851,120 | 101,409 | 86 | 183 | 24 |
 
-### 02_mapa_intensidad_celda (207,314 filas)
+### 02_mapa_intensidad_celda (36,448 filas)
 
-| event_date | h3_r8 | centro_lat | centro_lon | posiciones | buques_hora_pico | intensidad_log10 |
+| event_date | celda_lat | celda_lon | posiciones | celdas_h3_r8 | buques_hora_pico | intensidad_log10 |
 |---|---|---|---|---|---|---|
-| 2023-06-09 | 88446134d9fffff | 29.262 | -94.5693 | 9 | 1 | 0.954 |
-| 2023-06-09 | 882af6a8b9fffff | 37.0375 | -76.0755 | 1 | 1 | 0 |
-| 2023-06-09 | 8844d5cd4bfffff | 32.0769 | -80.9692 | 6 | 2 | 0.778 |
-| 2023-06-09 | 882aa94009fffff | 38.2193 | -76.2731 | 1 | 1 | 0 |
-| 2023-06-09 | 882ad5a943fffff | 34.5626 | -76.5853 | 2 | 1 | 0.301 |
-| 2023-06-09 | 882aa80703fffff | 38.8824 | -76.4526 | 7 | 2 | 0.845 |
-| 2023-06-09 | 8828cb6099fffff | 50.1433 | -128.3683 | 1 | 1 | 0 |
-| 2023-06-09 | 882ac28d05fffff | 33.9982 | -75.9189 | 3 | 1 | 0.477 |
-| 2023-06-09 | 8844890f35fffff | 30.8708 | -79.5776 | 2 | 1 | 0.301 |
-| 2023-06-09 | 882aacaad1fffff | 39.7525 | -75.4907 | 11 | 2 | 1.041 |
-| 2023-06-09 | 882aad32adfffff | 38.7661 | -74.8774 | 4 | 1 | 0.602 |
-| 2023-06-09 | 88446185c5fffff | 28.6656 | -94.4097 | 2 | 1 | 0.301 |
+| 2023-06-09 | 29.925 | -90.075 | 3,099 | 14 | 4 | 3.491 |
+| 2023-06-09 | 34.675 | -121.525 | 11 | 7 | 1 | 1.041 |
+| 2023-06-09 | 40.575 | -70.275 | 14 | 5 | 1 | 1.146 |
+| 2023-06-09 | 46.275 | -124.025 | 25 | 6 | 1 | 1.398 |
+| 2023-06-09 | 25.925 | -79.425 | 42 | 17 | 2 | 1.623 |
+| 2023-06-09 | 48.975 | -123.825 | 532 | 2 | 4 | 2.726 |
+| 2023-06-09 | 49.175 | -122.425 | 29 | 6 | 1 | 1.462 |
+| 2023-06-09 | 41.475 | -71.325 | 4,669 | 13 | 11 | 3.669 |
+| 2023-06-09 | 27.525 | -82.575 | 1,205 | 3 | 1 | 3.081 |
+| 2023-06-09 | 28.425 | -80.625 | 2,578 | 7 | 6 | 3.411 |
+| 2023-06-09 | 30.375 | -88.875 | 1,333 | 3 | 3 | 3.125 |
+| 2023-06-09 | 39.925 | -74.125 | 322 | 1 | 1 | 2.508 |
 
 ### 03_trafico_por_hora (72 filas)
 

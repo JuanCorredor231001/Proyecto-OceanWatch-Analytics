@@ -21,6 +21,14 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 
 ## Fase 1 - Feed diario completo en Databricks (req. 1 y 3, 35 %)
 
+**Estado (2026-11-07): hecha salvo capturas y la falla en el workspace (1.4).**
+- 1.1: bundle desplegado.
+- 1.2: el feed 08-14 ya estaba procesado (7 corridas SUCCESS).
+- 1.3 y 1.6: corrida `PERIODIC` del cron a las 06:00, con el DAG cortado por `hay_fecha_pendiente = false`.
+- 1.5: bronce = CSV y plata + cuarentena = bronce en los 7 días.
+
+En 1.4 falta una corrida fallida en el workspace que dispare el correo; hoy los reintentos solo están documentados en el backfill. Detalle en las evidencias 08 y 12.
+
 | # | Tarea | Evidencia que debe quedar |
 |---|---|---|
 | 1.1 | `databricks bundle deploy -t institucional` con los cambios de la fase 0 | Salida del deploy |
@@ -32,6 +40,11 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 
 ## Fase 2 - Tablero (req. 4, 15 %)
 
+**Estado (2026-11-07): hecha salvo capturas.**
+- 2.1: los 4 paneles pedidos se ven en el tablero publicado.
+- 2.2: el filtro cubre 01-14 jun y abre en 14-jun; el refresco corrió en las 7 corridas del feed.
+- 2.3: se corrigieron el mapa (`symbol-map` sobre rejilla 0.05°, antes era inválido), las tablas (spec v2) y el filtro sin valor por defecto. Detalle en la evidencia 09.
+
 | # | Tarea | Evidencia |
 |---|---|---|
 | 2.1 | Abrir el tablero publicado y revisar los cuatro elementos exigidos: mapa de intensidad por celda, ranking de puertos, buques en puerto y anomalías del día | Captura de cada widget |
@@ -39,6 +52,14 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 | 2.3 | Si un widget no carga (por ejemplo el mapa), recrearlo en la UI sobre el mismo dataset y exportar de nuevo el `.lvdash.json` | JSON actualizado en `dashboards/` |
 
 ## Fase 3 - Gobernanza (req. 5, 10 %)
+
+**Estado (2026-11-07): hecha salvo la captura del linaje y una decisión.**
+- 3.1: sin permisos de administrador de la cuenta no hay grupos de cuenta, así que se crearon 4 *service principals* por rol.
+- 3.2: el notebook 12 terminó SUCCESS y los permisos coinciden con el diseño.
+- 3.3: el linaje se consultó por SQL; faltan la captura y declarar los huecos bronce → plata y features → anomalías.
+- 3.4: etiquetas en 5/5 tablas y comentarios en 93/93 columnas.
+
+**Decisión (2026-11-07):** se mantiene el grant de `account users` (`ALL PRIVILEGES` + `MANAGE` sobre `oceanwatch_g07`) como riesgo aceptado, para no quitar el acceso a los integrantes. La evidencia 10 documenta que los roles no son restrictivos mientras exista y el `REVOKE` que se usaría en producción.
 
 | # | Tarea | Evidencia |
 |---|---|---|
@@ -49,6 +70,13 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 
 ## Fase 4 - ML con MLflow (req. 6, 10 %)
 
+**Estado (2026-11-07): hecha.**
+- 4.1: run `ca6f949f…` capturado con sus parámetros y métricas.
+- 4.2: modelo en UC capturado, con v3 `@champion`.
+- 4.3: el feed 08-14 (y los 14 días) se puntuó con v3: 3,098 anomalías.
+
+Capturas en `docs/evidencias/capturas/11*.jpg`. El linaje de la Fase 3 está en `10a_*.jpg` (lista) y `10b_*.jpg` (grafo).
+
 | # | Tarea | Evidencia |
 |---|---|---|
 | 4.1 | Capturar el experimento (parámetros, métricas, artefactos) del entrenamiento del backfill | Captura de la UI de MLflow |
@@ -56,6 +84,13 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 | 4.3 | Mostrar que `ml_puntuar` del job diario carga `@champion` y escribe `anomalias_velocidad_diarias` para cada día del feed | Conteo de anomalías por día 08-14 |
 
 ## Fase 5 - Bono Delta Sharing (+5 %)
+
+**Estado (2026-11-07): bloqueado por el administrador.**
+- 5.1: el equipo sí tiene `CREATE SHARE` y `CREATE RECIPIENT`, pero el metastore tiene `delta_sharing_scope = INTERNAL`.
+- 5.2: `oceanwatch_oro` se creó con las 5 tablas oro. `CREATE RECIPIENT` falló con "External Delta Sharing is not enabled on the metastore".
+- 5.3 y 5.4: no se pueden hacer hasta que un administrador de la cuenta habilite el sharing externo.
+
+Detalle y pasos para completarlo en la evidencia 13.
 
 | # | Tarea | Evidencia |
 |---|---|---|
@@ -65,6 +100,20 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 | 5.4 | Documentar en una evidencia nueva (`13 evidencia_delta_sharing.md`) que no hubo copia manual de datos | Archivo de evidencia |
 
 ## Fase 6 - Documentación y cierre (req. 7, 5 %, y sustentación, 10 %)
+
+**Estado (2026-11-07).**
+- 6.1 hecha: evidencias 08 a 13 completas y 8 capturas en `docs/evidencias/capturas/`.
+- 6.2 hecha: la bitácora tiene una fila por fase y los riesgos al día.
+- 6.4 hecha: README al día con el estado y la evidencia 13.
+
+**Lo que solo puede hacer el equipo:**
+- 6.3: aprobar en equipo D-E2-01 a D-E2-09, más las notas del mapa (D-E2-07) y el riesgo aceptado de `account users`.
+- 6.5: preparar la sustentación.
+- 6.6: push y entrega en Bloque Neón.
+
+**Pendientes técnicos:**
+- 1.4: corrida fallida en el workspace con correo de alerta.
+- Bono: pedir al administrador de la cuenta que habilite External Delta Sharing.
 
 | # | Tarea |
 |---|---|

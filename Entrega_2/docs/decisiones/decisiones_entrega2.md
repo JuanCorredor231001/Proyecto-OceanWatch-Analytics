@@ -53,6 +53,7 @@ Las decisiones D-01 a D-07 de la Entrega 1 siguen vigentes ([`docs/decisiones_pe
 ## D-E2-07 - Grilla espacial y puertos
 
 - H3 r8 para la matriz de tráfico (igual que la pregunta 03d), con funciones nativas en Databricks y la librería `h3` en local; las dos implementan H3 v4 y dan los mismos IDs.
+- **Mapa del tablero (2026-11-07):** oro conserva H3 r8. Solo la consulta del mapa agrega los centroides r8 en una rejilla regular de 0.05° (~5.5 km). Con r8, un día tiene hasta 444,917 celdas y el widget de AI/BI trunca el resultado; con la rejilla quedan como máximo 59,560 puntos y se conserva el total de posiciones (evidencia 09).
 - Puertos: WPI (NGA Pub. 150) en Databricks. En local NGA respondió HTTP 503, así que se usa Natural Earth `ne_10m_ports` (subconjunto del WPI, dominio público), con la misma interfaz `load_ports`. Natural Earth repite algunos puertos con varios puntos; la primera corrida mostró "Port Everglades" y "Port Arthur" dos veces en el ranking. Por eso los homónimos a menos de ~0.5° se fusionan.
 - Celdas portuarias: centroide a ≤ 2 km del puerto (D-03). Si una celda queda cerca de dos puertos se asigna al más cercano.
 - **Estadía (v2):** posiciones del buque en celdas del mismo puerto. Se abre una estadía nueva solo si el buque pasó más de 1 h sin reportar desde ese puerto. Se marca `ATRACADO_O_FONDEADO` si la mediana de SOG es < 1 kn.

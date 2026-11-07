@@ -37,12 +37,13 @@ def counter(name, field, title):
 
 def table(name, dataset, columns, title):
     return {"name": name, "queries": [query("main_query", dataset, [c for c, _ in columns])],
-            "spec": {"version": 1, "widgetType": "table",
+            # Spec v2: AI/BI rechaza la v1 de tabla ("Invalid widget definition", probado en el workspace).
+            "spec": {"version": 2, "widgetType": "table",
                      "encodings": {"columns": [{"fieldName": c, "displayName": d} for c, d in columns]},
                      "frame": {"showTitle": True, "title": title}}}
 
 
-def build(catalog: str) -> dict:
+def build(catalog: str, default_date: str) -> dict:
     datasets = []
     for key, (display, file) in DATASETS.items():
         sql = (SQL_DIR / file).read_text(encoding="utf-8").replace("__CATALOGO__", catalog)
@@ -57,17 +58,19 @@ def build(catalog: str) -> dict:
             for k in DATASETS],
         "spec": {"version": 2, "widgetType": "filter-single-select",
                  "encodings": {"fields": [{"fieldName": "event_date", "displayName": "Fecha (UTC)", "queryName": f"fecha_{k}"} for k in DATASETS]},
+                 # Sin valor por defecto el filtro queda en "All": los contadores y el ranking mezclarían los 14 días.
+                 "selection": {"defaultSelection": {"values": {"dataType": "DATE", "values": [{"value": default_date}]}}},
                  "frame": {"showTitle": True, "title": "Fecha del feed"}}}
 
+    # "symbol-map" (v2) es el mapa de puntos de AI/BI; "point-map" se importa como widget inválido.
     mapa = {"name": "mapa_intensidad",
-            "queries": [query("main_query", "ds_mapa", ["centro_lat", "centro_lon", "posiciones", "intensidad_log10", "h3_r8"])],
-            "spec": {"version": 2, "widgetType": "point-map",
-                     "encodings": {"coordinates": {"latitude": {"fieldName": "centro_lat", "displayName": "Latitud"},
-                                                   "longitude": {"fieldName": "centro_lon", "displayName": "Longitud"}},
+            "queries": [query("main_query", "ds_mapa", ["celda_lat", "celda_lon", "intensidad_log10"])],
+            "spec": {"version": 2, "widgetType": "symbol-map",
+                     "encodings": {"coordinates": {"latitude": {"fieldName": "celda_lat", "displayName": "Latitud"},
+                                                   "longitude": {"fieldName": "celda_lon", "displayName": "Longitud"}},
                                    "color": {"fieldName": "intensidad_log10", "scale": {"type": "quantitative"},
-                                             "displayName": "log10(posiciones)"},
-                                   "extra": [{"fieldName": "posiciones"}, {"fieldName": "h3_r8"}]},
-                     "frame": {"showTitle": True, "title": "Mapa de intensidad de tráfico (celdas H3 r8)"}}}
+                                             "displayName": "log10(posiciones)"}},
+                     "frame": {"showTitle": True, "title": "Mapa de intensidad de tráfico (rejilla 0.05° desde H3 r8)"}}}
 
     ranking = {"name": "ranking_puertos",
                "queries": [query("main_query", "ds_puertos", ["port_name", "buques_distintos", "ranking"])],
@@ -109,8 +112,9 @@ def build(catalog: str) -> dict:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--catalogo", default="oceanwatch_g07")
+    parser.add_argument("--fecha-defecto", default="2023-06-14", help="fecha que muestra el filtro al abrir (último día del feed)")
     args = parser.parse_args()
     out = ROOT / "dashboards" / "oceanwatch_consola.lvdash.json"
     # newline="\n": en Windows evita reescribir el JSON con CRLF (diff limpio entre plataformas).
-    out.write_text(json.dumps(build(args.catalogo), indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")
+    out.write_text(json.dumps(build(args.catalogo, args.fecha_defecto), indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")
     print(f"Tablero escrito en {out}")

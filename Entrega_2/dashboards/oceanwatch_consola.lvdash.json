@@ -26,12 +26,15 @@
       "name": "ds_mapa",
       "displayName": "Intensidad por celda H3",
       "queryLines": [
-        "SELECT event_date, h3_r8, centro_lat, centro_lon,\n",
-        "       SUM(posiciones)        AS posiciones,\n",
-        "       MAX(buques_distintos)  AS buques_hora_pico,\n",
+        "SELECT event_date,\n",
+        "       FLOOR(centro_lat / 0.05) * 0.05 + 0.025 AS celda_lat,\n",
+        "       FLOOR(centro_lon / 0.05) * 0.05 + 0.025 AS celda_lon,\n",
+        "       SUM(posiciones)          AS posiciones,\n",
+        "       COUNT(DISTINCT h3_r8)    AS celdas_h3_r8,\n",
+        "       MAX(buques_distintos)    AS buques_hora_pico,\n",
         "       ROUND(LOG10(SUM(posiciones)), 3) AS intensidad_log10\n",
         "FROM oceanwatch_g07.gold.trafico_celda_hora\n",
-        "GROUP BY event_date, h3_r8, centro_lat, centro_lon\n"
+        "GROUP BY event_date, FLOOR(centro_lat / 0.05), FLOOR(centro_lon / 0.05)\n"
       ]
     },
     {
@@ -234,6 +237,18 @@
                   }
                 ]
               },
+              "selection": {
+                "defaultSelection": {
+                  "values": {
+                    "dataType": "DATE",
+                    "values": [
+                      {
+                        "value": "2023-06-14"
+                      }
+                    ]
+                  }
+                }
+              },
               "frame": {
                 "showTitle": true,
                 "title": "Fecha del feed"
@@ -418,24 +433,16 @@
                   "disaggregated": true,
                   "fields": [
                     {
-                      "name": "centro_lat",
-                      "expression": "`centro_lat`"
+                      "name": "celda_lat",
+                      "expression": "`celda_lat`"
                     },
                     {
-                      "name": "centro_lon",
-                      "expression": "`centro_lon`"
-                    },
-                    {
-                      "name": "posiciones",
-                      "expression": "`posiciones`"
+                      "name": "celda_lon",
+                      "expression": "`celda_lon`"
                     },
                     {
                       "name": "intensidad_log10",
                       "expression": "`intensidad_log10`"
-                    },
-                    {
-                      "name": "h3_r8",
-                      "expression": "`h3_r8`"
                     }
                   ]
                 }
@@ -443,15 +450,15 @@
             ],
             "spec": {
               "version": 2,
-              "widgetType": "point-map",
+              "widgetType": "symbol-map",
               "encodings": {
                 "coordinates": {
                   "latitude": {
-                    "fieldName": "centro_lat",
+                    "fieldName": "celda_lat",
                     "displayName": "Latitud"
                   },
                   "longitude": {
-                    "fieldName": "centro_lon",
+                    "fieldName": "celda_lon",
                     "displayName": "Longitud"
                   }
                 },
@@ -461,19 +468,11 @@
                     "type": "quantitative"
                   },
                   "displayName": "log10(posiciones)"
-                },
-                "extra": [
-                  {
-                    "fieldName": "posiciones"
-                  },
-                  {
-                    "fieldName": "h3_r8"
-                  }
-                ]
+                }
               },
               "frame": {
                 "showTitle": true,
-                "title": "Mapa de intensidad de tráfico (celdas H3 r8)"
+                "title": "Mapa de intensidad de tráfico (rejilla 0.05° desde H3 r8)"
               }
             }
           },
@@ -642,7 +641,7 @@
               }
             ],
             "spec": {
-              "version": 1,
+              "version": 2,
               "widgetType": "table",
               "encodings": {
                 "columns": [
@@ -736,7 +735,7 @@
               }
             ],
             "spec": {
-              "version": 1,
+              "version": 2,
               "widgetType": "table",
               "encodings": {
                 "columns": [
