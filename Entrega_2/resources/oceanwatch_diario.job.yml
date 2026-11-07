@@ -1,0 +1,113 @@
+# Job diario end-to-end (requisito 3): una ejecución por día del feed.
+resources:
+  jobs:
+    oceanwatch_diario:
+      name: "[OceanWatch] Pipeline diario feed AIS"
+      description: >
+        Llegada del feed NOAA -> bronce (Auto Loader) -> plata (compuertas de calidad) -> monitoreo ->
+        oro -> ML (anomalías) -> validación del contrato -> refresco del tablero.
+      max_concurrent_runs: 1            # los streams comparten checkpoint: nunca dos corridas a la vez
+      timeout_seconds: 7200
+      parameters:
+        - name: fecha
+          default: auto                 # auto = siguiente día pendiente del calendario del feed
+        - name: catalogo
+          default: ${var.catalogo}
+        - name: umbral_cuarentena_pct
+          default: "5"
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"   # 06:00 todos los días
+        timezone_id: America/Bogota
+        pause_status: UNPAUSED
+      email_notifications:
+        on_failure: [ "${workspace.current_user.userName}" ]
+        on_duration_warning_threshold_exceeded: [ "${workspace.current_user.userName}" ]
+      health:
+        rules:
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: 3600
+      # Cómputo serverless: las tareas notebook sin clúster corren en serverless.
+      tasks:
+        - task_key: resolver_fecha
+          notebook_task:
+            notebook_path: ../notebooks/01_resolver_fecha.py
+          max_retries: 1
+
+        - task_key: hay_fecha_pendiente
+          depends_on:
+            - task_key: resolver_fecha
+          condition_task:
+            op: NOT_EQUAL
+            left: "{{tasks.resolver_fecha.values.fecha}}"
+            right: NINGUNA
+
+        - task_key: aterrizar_feed
+          depends_on:
+            - task_key: hay_fecha_pendiente
+              outcome: "true"
+          notebook_task:
+            notebook_path: ../notebooks/02_aterrizar_feed.py
+          max_retries: 3                     # red / NOAA: reintentos con espera
+          min_retry_interval_millis: 120000
+          retry_on_timeout: true
+          timeout_seconds: 1800
+
+        - task_key: bronce_streaming
+          depends_on:
+            - task_key: aterrizar_feed
+          notebook_task:
+            notebook_path: ../notebooks/03_bronce_streaming.py
+          max_retries: 2                     # seguro: checkpoint + sumidero Delta idempotente
+          min_retry_interval_millis: 60000
+
+        - task_key: plata_calidad
+          depends_on:
+            - task_key: bronce_streaming
+          notebook_task:
+            notebook_path: ../notebooks/04_plata_calidad.py
+          max_retries: 2                     # seguro: foreachBatch con txnAppId/txnVersion
+          min_retry_interval_millis: 60000
+
+        - task_key: monitorear_calidad
+          depends_on:
+            - task_key: plata_calidad
+          notebook_task:
+            notebook_path: ../notebooks/05_monitorear_calidad.py
+          max_retries: 0                     # una violación de calidad no se corrige reintentando
+
+        - task_key: oro_modelo
+          depends_on:
+            - task_key: monitorear_calidad
+          notebook_task:
+            notebook_path: ../notebooks/06_oro_modelo.py
+          max_retries: 2
+          min_retry_interval_millis: 60000
+
+        - task_key: ml_features
+          depends_on:
+            - task_key: oro_modelo
+          notebook_task:
+            notebook_path: ../notebooks/07_ml_features.py
+          max_retries: 1
+
+        - task_key: ml_puntuar
+          depends_on:
+            - task_key: ml_features
+          notebook_task:
+            notebook_path: ../notebooks/09_ml_puntuar.py
+          max_retries: 1
+
+        - task_key: validar_contrato
+          depends_on:
+            - task_key: ml_puntuar
+          notebook_task:
+            notebook_path: ../notebooks/10_validar_contrato.py
+          max_retries: 0
+
+        - task_key: refrescar_tablero
+          depends_on:
+            - task_key: validar_contrato
+          dashboard_task:
+            dashboard_id: ${resources.dashboards.oceanwatch_consola.id}
+            warehouse_id: ${var.warehouse_id}

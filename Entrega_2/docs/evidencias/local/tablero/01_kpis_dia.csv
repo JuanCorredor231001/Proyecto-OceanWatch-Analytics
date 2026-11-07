@@ -1,0 +1,4 @@
+event_date,buques_activos,posiciones,distancia_total_km,puertos_con_actividad,buques_en_puerto_al_cierre,anomalias
+2023-06-01,1996,838048,87286.0,78,168,21
+2023-06-08,2054,864428,96236.0,81,172,25
+2023-06-09,2150,851120,101409.0,86,183,24

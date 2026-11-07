@@ -1,0 +1,31 @@
+# Databricks Asset Bundle de OceanWatch Analytics - Entrega 2
+# Despliegue:  databricks bundle validate -t institucional
+#              databricks bundle deploy   -t institucional
+#              databricks bundle run oceanwatch_backfill_historico -t institucional
+#              databricks bundle run oceanwatch_diario -t institucional --params fecha=2023-06-08
+bundle:
+  name: oceanwatch_analytics
+
+include:
+  - resources/*.yml
+
+variables:
+  catalogo:
+    description: Catálogo de Unity Catalog del equipo en el workspace institucional.
+    default: oceanwatch_g07
+  warehouse_id:
+    description: SQL warehouse que ejecuta el tablero.
+    default: "4f11fd1da31b2442"   # Serverless Starter Warehouse
+
+targets:
+  institucional:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-18ae9c2d-d518.cloud.databricks.com
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
+  produccion:
+    mode: production
+    workspace:
+      host: https://dbc-18ae9c2d-d518.cloud.databricks.com
+      root_path: /Shared/.bundle/${bundle.name}

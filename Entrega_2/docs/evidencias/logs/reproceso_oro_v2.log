@@ -1,0 +1,38 @@
+Tablas: ['bronze.ais_raw', 'silver.ais_posiciones', 'silver.ais_cuarentena', 'silver.metricas_calidad', 'ml.features_velocidad_buque_dia', 'ops.pipeline_runs', 'ops.feed_calendar', 'gold.trayectorias_diarias_buque', 'gold.estadias_puerto', 'gold.puertos_resumen_diario', 'gold.trafico_celda_hora', 'gold.anomalias_velocidad_diarias']
+Referencias: {'vessel_type_catalog': 34, 'ports': 1064, 'port_cells_h3r8': 19363, 'land_cells_h3r5': 67992}
+[programador] disparo 1/1 a las 2026-11-06T14:52:07.101167+00:00
+=== Ejecución 20261106T145207-ff2bd6 | fecha=2023-06-01 ===
+  ✓ resolver_fecha       intento=1     0.0s {"fecha": "2023-06-01"}
+  ✓ aterrizar_feed       intento=1    68.0s {"fecha": "2023-06-01", "zip": "AIS_2023_06_01.zip", "zip_bytes": 343949892, "zip_sha256": "e6287c47f9659fd3bc6c0456579e93f07e3ec099c347514757a86413d0c99d6a", "csv_publicado": "/worksp
+  ✓ bronce_streaming     intento=1     3.2s {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []}
+  ✓ plata_calidad        intento=1     3.1s {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []}
+  ✓ monitorear_calidad   intento=1    16.1s {"fecha": "2023-06-01", "filas_bronce": 846338, "filas_plata": 838048, "filas_cuarentena": 8290, "cuarentena_compuertas": 8277, "cuarentena_duplicados": 13, "pct_cuarentena_compuertas"
+  ✓ oro_modelo           intento=1    51.1s {"trayectorias_diarias_buque": 1996, "estadias_puerto": 503, "trafico_celda_hora": 114493, "puertos_resumen_diario": 78, "posiciones_plata": 838048}
+  ✓ ml_features          intento=1     8.6s {"filas": 1996}
+  ✓ ml_puntuar           intento=1    10.6s {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 1996, "anomalias": 21}
+  ✓ validar_contrato     intento=1    13.4s {"fecha": "2023-06-01", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []}
+=== Resultado 20261106T145207-ff2bd6: EXITOSO (fecha=2023-06-01) ===
+[programador] disparo 1/1 a las 2026-11-06T14:56:11.151472+00:00
+=== Ejecución 20261106T145611-a16c77 | fecha=2023-06-08 ===
+  ✓ resolver_fecha       intento=1     0.0s {"fecha": "2023-06-08"}
+  ✓ aterrizar_feed       intento=1    69.4s {"fecha": "2023-06-08", "zip": "AIS_2023_06_08.zip", "zip_bytes": 348931376, "zip_sha256": "72b7a149cb50de4d2e45d98f3c881ce234dc99c3a7c1cb568dbfd81345f149b7", "csv_publicado": "/worksp
+  ✓ bronce_streaming     intento=1     3.1s {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []}
+  ✓ plata_calidad        intento=1     3.1s {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []}
+  ✓ monitorear_calidad   intento=1    15.0s {"fecha": "2023-06-08", "filas_bronce": 872650, "filas_plata": 864428, "filas_cuarentena": 8222, "cuarentena_compuertas": 8206, "cuarentena_duplicados": 16, "pct_cuarentena_compuertas"
+  ✓ oro_modelo           intento=1    46.8s {"trayectorias_diarias_buque": 2054, "estadias_puerto": 532, "trafico_celda_hora": 123300, "puertos_resumen_diario": 81, "posiciones_plata": 864428}
+  ✓ ml_features          intento=1     9.0s {"filas": 2054}
+  ✓ ml_puntuar           intento=1     8.8s {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2054, "anomalias": 25}
+  ✓ validar_contrato     intento=1    13.2s {"fecha": "2023-06-08", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []}
+=== Resultado 20261106T145611-a16c77: EXITOSO (fecha=2023-06-08) ===
+[programador] disparo 1/1 a las 2026-11-06T15:00:11.640735+00:00
+=== Ejecución 20261106T150011-6e7c4d | fecha=2023-06-09 ===
+  ✓ resolver_fecha       intento=1     0.0s {"fecha": "2023-06-09"}
+  ✓ aterrizar_feed       intento=1    68.9s {"fecha": "2023-06-09", "zip": "AIS_2023_06_09.zip", "zip_bytes": 343405316, "zip_sha256": "b885617efa7c02f6aca891cac4e1a9fd8bfb28251c0f3027f76b7cd96b40833a", "csv_publicado": "/worksp
+  ✓ bronce_streaming     intento=1     3.3s {"query": "bronze_ais_raw", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []}
+  ✓ plata_calidad        intento=1     3.1s {"query": "silver_ais_posiciones", "lotes_con_datos": 0, "filas_entrada": 0, "ids_lote": []}
+  ✓ monitorear_calidad   intento=1    16.8s {"fecha": "2023-06-09", "filas_bronce": 859555, "filas_plata": 851120, "filas_cuarentena": 8435, "cuarentena_compuertas": 8406, "cuarentena_duplicados": 29, "pct_cuarentena_compuertas"
+  ✓ oro_modelo           intento=1    51.4s {"trayectorias_diarias_buque": 2150, "estadias_puerto": 586, "trafico_celda_hora": 127873, "puertos_resumen_diario": 86, "posiciones_plata": 851120}
+  ✓ ml_features          intento=1     8.6s {"filas": 2150}
+  ✓ ml_puntuar           intento=1     9.8s {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2150, "anomalias": 24}
+  ✓ validar_contrato     intento=1    16.5s {"fecha": "2023-06-09", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []}
+=== Resultado 20261106T150011-6e7c4d: EXITOSO (fecha=2023-06-09) ===

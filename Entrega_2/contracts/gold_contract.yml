@@ -1,0 +1,142 @@
+# Contrato de datos de la capa oro - OceanWatch Analytics (Entrega 2)
+# Fuente única de verdad: genera el DDL de las tablas oro, los COMMENT de Unity Catalog y la
+# validación automática del job (tarea `validar_contrato`). Cambios incompatibles => nueva versión mayor.
+contrato:
+  id: oceanwatch-gold
+  version: 1.0.0
+  estado: vigente
+  propietario: Equipo de datos OceanWatch (grupo oceanwatch_ingenieros)
+  consumidores: [oceanwatch_analistas, oceanwatch_tablero, oceanwatch_cientificos]
+  dominio: Tráfico marítimo AIS - aguas de EE. UU. (NOAA Marine Cadastre)
+  frescura: "Cada fecha del feed disponible en oro a más tardar 2 h después de que el archivo diario llega a landing."
+  granularidad_temporal: "event_date (UTC). Las tablas se reescriben por fecha (replaceWhere): re-ejecutar un día es idempotente."
+  linaje: "landing.raw_ais (Volume) -> bronze.ais_raw -> silver.ais_posiciones -> gold.*; ml.features_velocidad_buque_dia -> modelo MLflow -> gold.anomalias_velocidad_diarias"
+  garantias:
+    - "Ningún registro en silver.ais_cuarentena contribuye a oro: oro solo lee silver.ais_posiciones."
+    - "MMSI siempre de 9 dígitos; posiciones dentro de rango y en el agua; SOG en [0, 60] kn o NULL."
+    - "Distancias y velocidades implícitas aplican D-04 (0 < gap <= 2 h, velocidad implícita <= 60 kn)."
+    - "Asociación a puertos por celdas H3 r8 a <= 2 km del punto del puerto (D-03)."
+
+tablas:
+  trayectorias_diarias_buque:
+    descripcion: "Una fila por buque (MMSI) y día: resumen de la trayectoria diaria y su geometría simplificada."
+    clave_primaria: [event_date, mmsi]
+    particion: event_date
+    columnas:
+      - {nombre: event_date, tipo: date, nulo: false, descripcion: "Día UTC de la trayectoria."}
+      - {nombre: mmsi, tipo: string, nulo: false, descripcion: "Identificador MMSI de 9 dígitos."}
+      - {nombre: vessel_name, tipo: string, nulo: true, descripcion: "Último nombre reportado en el día."}
+      - {nombre: vessel_type, tipo: int, nulo: true, descripcion: "Último código AIS VesselType del día."}
+      - {nombre: vessel_type_group, tipo: string, nulo: false, descripcion: "Grupo de negocio (Carga, Tanquero, Pasajeros, Pesca, Remolque, Recreo, Servicio, Otro, Desconocido)."}
+      - {nombre: length_m, tipo: double, nulo: true, descripcion: "Eslora máxima plausible reportada (m)."}
+      - {nombre: n_posiciones, tipo: bigint, nulo: false, descripcion: "Posiciones válidas del buque en el día.", minimo: 1}
+      - {nombre: primera_posicion_ts, tipo: timestamp, nulo: false, descripcion: "Primera posición del día (UTC)."}
+      - {nombre: ultima_posicion_ts, tipo: timestamp, nulo: false, descripcion: "Última posición del día (UTC)."}
+      - {nombre: distancia_km, tipo: double, nulo: false, descripcion: "Distancia haversine sumada sobre pares D-04 (km).", minimo: 0}
+      - {nombre: horas_cubiertas, tipo: double, nulo: false, descripcion: "Horas cubiertas por pares D-04.", minimo: 0, maximo: 24}
+      - {nombre: pares_validos_d04, tipo: int, nulo: false, descripcion: "Pares consecutivos que cumplen D-04."}
+      - {nombre: pares_excluidos_d04, tipo: int, nulo: false, descripcion: "Pares consecutivos excluidos por D-04 (gap o salto)."}
+      - {nombre: sog_media_kn, tipo: double, nulo: true, descripcion: "SOG medio (nudos) sin sentinelas."}
+      - {nombre: sog_max_kn, tipo: double, nulo: true, descripcion: "SOG máximo (nudos) sin sentinelas.", maximo: 60}
+      - {nombre: velocidad_implicita_max_kn, tipo: double, nulo: true, descripcion: "Máxima velocidad implícita entre pares D-04 (nudos).", maximo: 60}
+      - {nombre: lat_inicio, tipo: double, nulo: false, descripcion: "Latitud de la primera posición."}
+      - {nombre: lon_inicio, tipo: double, nulo: false, descripcion: "Longitud de la primera posición."}
+      - {nombre: lat_fin, tipo: double, nulo: false, descripcion: "Latitud de la última posición."}
+      - {nombre: lon_fin, tipo: double, nulo: false, descripcion: "Longitud de la última posición."}
+      - {nombre: celdas_h3_visitadas, tipo: bigint, nulo: false, descripcion: "Celdas H3 r8 distintas visitadas."}
+      - {nombre: trayectoria_wkt, tipo: string, nulo: false, descripcion: "Trayectoria simplificada (<= 301 puntos) en WKT LINESTRING/POINT, lon lat WGS84."}
+      - {nombre: _gold_processed_at, tipo: timestamp, nulo: false, descripcion: "Instante de cálculo."}
+
+  estadias_puerto:
+    descripcion: "Presencia en puertos: una fila por estadía (posiciones del buque en celdas del mismo puerto sin ausencias > 1 h)."
+    clave_primaria: [stay_id]
+    particion: event_date
+    columnas:
+      - {nombre: event_date, tipo: date, nulo: false, descripcion: "Día UTC."}
+      - {nombre: stay_id, tipo: string, nulo: false, descripcion: "Identificador fecha-mmsi-puerto-secuencia."}
+      - {nombre: mmsi, tipo: string, nulo: false, descripcion: "MMSI del buque."}
+      - {nombre: vessel_name, tipo: string, nulo: true, descripcion: "Nombre del buque."}
+      - {nombre: vessel_type_group, tipo: string, nulo: false, descripcion: "Grupo de negocio del buque."}
+      - {nombre: port_id, tipo: string, nulo: false, descripcion: "Identificador del puerto (WPI-n o NE-n)."}
+      - {nombre: port_name, tipo: string, nulo: false, descripcion: "Nombre del puerto."}
+      - {nombre: arribo_ts, tipo: timestamp, nulo: false, descripcion: "Primera posición en el puerto."}
+      - {nombre: salida_ts, tipo: timestamp, nulo: false, descripcion: "Última posición en el puerto."}
+      - {nombre: duracion_horas, tipo: double, nulo: false, descripcion: "salida_ts - arribo_ts en horas.", minimo: 0, maximo: 24}
+      - {nombre: n_posiciones, tipo: bigint, nulo: false, descripcion: "Posiciones en la estadía."}
+      - {nombre: sog_media_kn, tipo: double, nulo: true, descripcion: "SOG medio en la estadía."}
+      - {nombre: sog_mediana_kn, tipo: double, nulo: true, descripcion: "SOG mediano en la estadía."}
+      - {nombre: estado, tipo: string, nulo: false, descripcion: "ATRACADO_O_FONDEADO si SOG mediano < 1 kn; si no, EN_TRANSITO.", valores: [ATRACADO_O_FONDEADO, EN_TRANSITO]}
+      - {nombre: inicia_dia_en_puerto, tipo: boolean, nulo: false, descripcion: "La estadía empieza con la primera posición del día (el arribo pudo ser el día anterior)."}
+      - {nombre: en_puerto_al_cierre, tipo: boolean, nulo: false, descripcion: "La última posición del día del buque está en este puerto."}
+      - {nombre: _gold_processed_at, tipo: timestamp, nulo: false, descripcion: "Instante de cálculo."}
+
+  puertos_resumen_diario:
+    descripcion: "Ranking diario de puertos y conteo de buques en puerto."
+    clave_primaria: [event_date, port_id]
+    particion: event_date
+    columnas:
+      - {nombre: event_date, tipo: date, nulo: false, descripcion: "Día UTC."}
+      - {nombre: ranking, tipo: int, nulo: false, descripcion: "Posición por buques distintos (desempate: horas-buque).", minimo: 1}
+      - {nombre: port_id, tipo: string, nulo: false, descripcion: "Identificador del puerto."}
+      - {nombre: port_name, tipo: string, nulo: false, descripcion: "Nombre del puerto."}
+      - {nombre: country_code, tipo: string, nulo: true, descripcion: "País (WPI)."}
+      - {nombre: port_lat, tipo: double, nulo: false, descripcion: "Latitud del puerto."}
+      - {nombre: port_lon, tipo: double, nulo: false, descripcion: "Longitud del puerto."}
+      - {nombre: buques_distintos, tipo: bigint, nulo: false, descripcion: "Buques con al menos una estadía en el día."}
+      - {nombre: estadias, tipo: bigint, nulo: false, descripcion: "Número de estadías."}
+      - {nombre: arribos, tipo: bigint, nulo: false, descripcion: "Estadías que no empiezan con la primera posición del día."}
+      - {nombre: buques_atracados, tipo: bigint, nulo: false, descripcion: "Buques con alguna estadía ATRACADO_O_FONDEADO."}
+      - {nombre: buques_en_puerto_al_cierre, tipo: bigint, nulo: false, descripcion: "Buques cuya última posición del día está en el puerto."}
+      - {nombre: horas_buque_totales, tipo: double, nulo: false, descripcion: "Suma de duraciones de estadía (h)."}
+      - {nombre: duracion_media_horas, tipo: double, nulo: false, descripcion: "Duración media de estadía (h)."}
+      - {nombre: buques_carga, tipo: bigint, nulo: false, descripcion: "Buques de carga distintos."}
+      - {nombre: buques_tanquero, tipo: bigint, nulo: false, descripcion: "Tanqueros distintos."}
+      - {nombre: buques_pasajeros, tipo: bigint, nulo: false, descripcion: "Buques de pasajeros distintos."}
+      - {nombre: _gold_processed_at, tipo: timestamp, nulo: false, descripcion: "Instante de cálculo."}
+
+  trafico_celda_hora:
+    descripcion: "Matriz de tráfico: una fila por celda H3 r8 y hora UTC con posiciones y buques por grupo."
+    clave_primaria: [event_date, hora_ts, h3_r8]
+    particion: event_date
+    columnas:
+      - {nombre: event_date, tipo: date, nulo: false, descripcion: "Día UTC."}
+      - {nombre: hora_ts, tipo: timestamp, nulo: false, descripcion: "Inicio de la hora UTC."}
+      - {nombre: hora, tipo: int, nulo: false, descripcion: "Hora del día 0-23.", minimo: 0, maximo: 23}
+      - {nombre: h3_r8, tipo: string, nulo: false, descripcion: "Celda H3 resolución 8 (~0.74 km²)."}
+      - {nombre: centro_lat, tipo: double, nulo: false, descripcion: "Latitud del centroide de la celda."}
+      - {nombre: centro_lon, tipo: double, nulo: false, descripcion: "Longitud del centroide de la celda."}
+      - {nombre: posiciones, tipo: bigint, nulo: false, descripcion: "Posiciones válidas en la celda-hora.", minimo: 1}
+      - {nombre: buques_distintos, tipo: bigint, nulo: false, descripcion: "MMSI distintos en la celda-hora.", minimo: 1}
+      - {nombre: sog_media_kn, tipo: double, nulo: true, descripcion: "SOG medio en la celda-hora."}
+      - {nombre: buques_carga, tipo: bigint, nulo: false, descripcion: "Buques de carga distintos."}
+      - {nombre: buques_tanquero, tipo: bigint, nulo: false, descripcion: "Tanqueros distintos."}
+      - {nombre: buques_pasajeros, tipo: bigint, nulo: false, descripcion: "Buques de pasajeros distintos."}
+      - {nombre: buques_pesca, tipo: bigint, nulo: false, descripcion: "Pesqueros distintos."}
+      - {nombre: buques_remolque, tipo: bigint, nulo: false, descripcion: "Remolcadores distintos."}
+      - {nombre: buques_recreo, tipo: bigint, nulo: false, descripcion: "Embarcaciones de recreo distintas."}
+      - {nombre: buques_otros, tipo: bigint, nulo: false, descripcion: "Buques de otros grupos."}
+      - {nombre: _gold_processed_at, tipo: timestamp, nulo: false, descripcion: "Instante de cálculo."}
+
+  anomalias_velocidad_diarias:
+    descripcion: "Puntaje de anomalía de velocidad por buque y día (modelo MLflow registrado, alias champion)."
+    clave_primaria: [event_date, mmsi]
+    particion: event_date
+    columnas:
+      - {nombre: event_date, tipo: date, nulo: false, descripcion: "Día UTC."}
+      - {nombre: mmsi, tipo: string, nulo: false, descripcion: "MMSI del buque."}
+      - {nombre: vessel_name, tipo: string, nulo: true, descripcion: "Nombre del buque."}
+      - {nombre: vessel_type_group, tipo: string, nulo: false, descripcion: "Grupo de negocio."}
+      - {nombre: n_posiciones, tipo: bigint, nulo: false, descripcion: "Posiciones del día."}
+      - {nombre: sog_media_kn, tipo: double, nulo: true, descripcion: "SOG medio."}
+      - {nombre: sog_p95_kn, tipo: double, nulo: true, descripcion: "Percentil 95 de SOG."}
+      - {nombre: sog_max_kn, tipo: double, nulo: true, descripcion: "SOG máximo."}
+      - {nombre: velocidad_implicita_max_kn, tipo: double, nulo: true, descripcion: "Máxima velocidad implícita D-04."}
+      - {nombre: distancia_km, tipo: double, nulo: false, descripcion: "Distancia diaria D-04."}
+      - {nombre: anomaly_score, tipo: double, nulo: false, descripcion: "Puntaje IsolationForest (mayor = más anómalo)."}
+      - {nombre: es_anomalia, tipo: boolean, nulo: false, descripcion: "Predicción del modelo (contaminación configurada)."}
+      - {nombre: motivo_principal, tipo: string, nulo: true, descripcion: "Variable con mayor desviación estandarizada del buque frente al entrenamiento."}
+      - {nombre: lat_ultima, tipo: double, nulo: false, descripcion: "Latitud de la última posición del día."}
+      - {nombre: lon_ultima, tipo: double, nulo: false, descripcion: "Longitud de la última posición del día."}
+      - {nombre: modelo, tipo: string, nulo: false, descripcion: "Nombre del modelo registrado."}
+      - {nombre: modelo_version, tipo: string, nulo: false, descripcion: "Versión del modelo usada."}
+      - {nombre: _gold_processed_at, tipo: timestamp, nulo: false, descripcion: "Instante de puntuación."}

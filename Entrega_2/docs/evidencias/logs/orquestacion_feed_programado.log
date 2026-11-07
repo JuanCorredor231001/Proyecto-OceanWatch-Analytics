@@ -1,0 +1,33 @@
+[programador] disparo 1/3 a las 2026-11-06T13:57:48.466968+00:00
+=== Ejecución 20261106T135748-d63d84 | fecha=auto ===
+  ✓ resolver_fecha       intento=1    15.1s {"fecha": "2023-06-08"}
+  ✓ aterrizar_feed       intento=1    67.9s {"fecha": "2023-06-08", "zip": "AIS_2023_06_08.zip", "zip_bytes": 348931376, "zip_sha256": "72b7a149cb50de4d2e45d98f3c881ce234dc99c3a7c1cb568dbfd81345f149b7", "csv_publicado": "/workspace/local_lakehouse/_volumes/landing/raw_ais/feed/2023-06-08/AIS_2023_06_08.csv", "filas_origen": 8920444, "filas_pu
+  ✗ bronce_streaming     intento=1 ERROR: Falla transitoria inyectada en bronce_streaming (intento 1)
+    reintento en 3s
+  ✓ bronce_streaming     intento=2    17.5s {"query": "bronze_ais_raw", "lotes_con_datos": 1, "filas_entrada": 872650, "ids_lote": [1]}
+  ✓ plata_calidad        intento=1    68.5s {"query": "silver_ais_posiciones", "lotes_con_datos": 1, "filas_entrada": 872650, "ids_lote": [1]}
+  ✓ monitorear_calidad   intento=1     7.3s {"fecha": "2023-06-08", "filas_bronce": 872650, "filas_plata": 864428, "filas_cuarentena": 8222, "cuarentena_compuertas": 8206, "cuarentena_duplicados": 16, "pct_cuarentena_compuertas": 0.9404, "cuarentena_por_motivo": {"E01_MMSI_FORMATO": 6362, "E06_COORDENADAS_EN_AGUA": 1841, "E07_SOG_PLAUSIBLE": 
+  ✓ oro_modelo           intento=1    46.8s {"trayectorias_diarias_buque": 2054, "estadias_puerto": 821, "trafico_celda_hora": 123300, "puertos_resumen_diario": 88, "posiciones_plata": 864428}
+  ✓ ml_features          intento=1     8.2s {"filas": 2054}
+  ✓ ml_puntuar           intento=1     9.0s {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2054, "anomalias": 25}
+  ✓ validar_contrato     intento=1    12.1s {"fecha": "2023-06-08", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []}
+=== Resultado 20261106T135748-d63d84: EXITOSO (fecha=2023-06-08) ===
+[programador] esperando 20s hasta la siguiente ejecución programada
+[programador] disparo 2/3 a las 2026-11-06T14:02:56.718294+00:00
+=== Ejecución 20261106T140256-117bc6 | fecha=auto ===
+  ✓ resolver_fecha       intento=1     1.6s {"fecha": "2023-06-09"}
+  ✓ aterrizar_feed       intento=1    66.0s {"fecha": "2023-06-09", "zip": "AIS_2023_06_09.zip", "zip_bytes": 343405316, "zip_sha256": "b885617efa7c02f6aca891cac4e1a9fd8bfb28251c0f3027f76b7cd96b40833a", "csv_publicado": "/workspace/local_lakehouse/_volumes/landing/raw_ais/feed/2023-06-09/AIS_2023_06_09.csv", "filas_origen": 8791124, "filas_pu
+  ✗ bronce_streaming     intento=1 ERROR: Falla transitoria inyectada en bronce_streaming (intento 1)
+    reintento en 3s
+  ✓ bronce_streaming     intento=2     9.4s {"query": "bronze_ais_raw", "lotes_con_datos": 1, "filas_entrada": 859555, "ids_lote": [2]}
+  ✓ plata_calidad        intento=1    41.4s {"query": "silver_ais_posiciones", "lotes_con_datos": 1, "filas_entrada": 859555, "ids_lote": [2]}
+  ✓ monitorear_calidad   intento=1     7.0s {"fecha": "2023-06-09", "filas_bronce": 859555, "filas_plata": 851120, "filas_cuarentena": 8435, "cuarentena_compuertas": 8406, "cuarentena_duplicados": 29, "pct_cuarentena_compuertas": 0.9779, "cuarentena_por_motivo": {"E01_MMSI_FORMATO": 7249, "E06_COORDENADAS_EN_AGUA": 1146, "E07_SOG_PLAUSIBLE": 
+  ✓ oro_modelo           intento=1    32.5s {"trayectorias_diarias_buque": 2150, "estadias_puerto": 933, "trafico_celda_hora": 127873, "puertos_resumen_diario": 93, "posiciones_plata": 851120}
+  ✓ ml_features          intento=1     6.3s {"filas": 2150}
+  ✓ ml_puntuar           intento=1     3.0s {"modelo": "oceanwatch_anomalias_velocidad", "version": "1", "buques_puntuados": 2150, "anomalias": 24}
+  ✓ validar_contrato     intento=1    12.8s {"fecha": "2023-06-09", "chequeos": 102, "fallidos": 0, "detalle_fallidos": []}
+=== Resultado 20261106T140256-117bc6: EXITOSO (fecha=2023-06-09) ===
+[programador] esperando 20s hasta la siguiente ejecución programada
+[programador] disparo 3/3 a las 2026-11-06T14:06:49.599421+00:00
+=== Ejecución 20261106T140649-013565 | fecha=auto ===
+  ✓ resolver_fecha       intento=1     1.6s {"fecha": "2023-06-10"}

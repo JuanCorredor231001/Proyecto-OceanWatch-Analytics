@@ -1,0 +1,71 @@
+{
+  "archivos_publicados": {
+    "AIS_2023_06_08.csv": 439221,
+    "AIS_2023_06_09.csv": 426003,
+    "AIS_2023_06_08_reenvio.csv": 439221
+  },
+  "filas_esperadas_bronce": 1304445,
+  "A_caida_proceso": {
+    "codigo_salida_caida": 137,
+    "bronce_tras_caida": 439221,
+    "codigo_reinicio": 0,
+    "bronce_tras_reinicio": 1304445,
+    "ok": true
+  },
+  "B_commit_perdido": {
+    "lote_reejecutado": 2,
+    "bronce_tras_reejecucion": 1304445,
+    "ok": true
+  },
+  "C_falla_foreachBatch": {
+    "codigo_salida_falla": 1,
+    "plata_tras_falla": 117855,
+    "cuarentena_tras_falla": 627,
+    "codigo_reinicio": 0,
+    "plata_final": 850067,
+    "cuarentena_final": 454378,
+    "claves_mmsi_ts_duplicadas_en_plata": 0,
+    "lotes_metricas": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "ok": true
+  },
+  "D_reenvio_duplicado": {
+    "filas_reenvio": 439221,
+    "reenvio_en_cuarentena_por_motivo": {
+      "D01_DUPLICADO_EXACTO": 431991,
+      "E01_MMSI_FORMATO": 6362,
+      "E06_COORDENADAS_EN_AGUA": 867,
+      "E07_SOG_PLAUSIBLE": 1
+    },
+    "reenvio_en_plata": 0,
+    "ok": true
+  },
+  "invariantes": {
+    "bronce_por_archivo": {
+      "AIS_2023_06_09.csv": 426003,
+      "AIS_2023_06_08.csv": 439221,
+      "AIS_2023_06_08_reenvio.csv": 439221
+    },
+    "cada_archivo_una_vez": true,
+    "bronce_igual_plata_mas_cuarentena": true
+  },
+  "todo_ok": true
+}

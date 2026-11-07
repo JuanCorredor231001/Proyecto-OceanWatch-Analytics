@@ -1,0 +1,59 @@
+# Carga histórica (corpus extendido 01-07 jun 2023) + excepciones navegables + entrenamiento del modelo.
+resources:
+  jobs:
+    oceanwatch_backfill_historico:
+      name: "[OceanWatch] Backfill histórico y entrenamiento ML"
+      max_concurrent_runs: 1
+      parameters:
+        - name: fecha
+          default: "2023-06-01,2023-06-02,2023-06-03,2023-06-04,2023-06-05,2023-06-06,2023-06-07"
+        - name: catalogo
+          default: ${var.catalogo}
+        - name: umbral_cuarentena_pct
+          default: "5"
+        - name: contaminacion
+          default: "0.01"
+      email_notifications:
+        on_failure: [ "${workspace.current_user.userName}" ]
+      # Cómputo serverless: las tareas notebook sin clúster corren en serverless.
+      tasks:
+        - task_key: configurar
+          notebook_task: { notebook_path: ../notebooks/00_configuracion_entrega2.py }
+        - task_key: resolver_fecha
+          depends_on: [ { task_key: configurar } ]
+          notebook_task: { notebook_path: ../notebooks/01_resolver_fecha.py }
+        - task_key: aterrizar_historico
+          depends_on: [ { task_key: resolver_fecha } ]
+          notebook_task: { notebook_path: ../notebooks/02_aterrizar_feed.py }
+          max_retries: 3
+          min_retry_interval_millis: 120000
+        - task_key: bronce_streaming
+          depends_on: [ { task_key: aterrizar_historico } ]
+          notebook_task: { notebook_path: ../notebooks/03_bronce_streaming.py }
+          max_retries: 2
+        - task_key: excepciones_navegables
+          depends_on: [ { task_key: bronce_streaming } ]
+          notebook_task: { notebook_path: ../notebooks/11_excepciones_navegables.py }
+        - task_key: plata_calidad
+          depends_on: [ { task_key: excepciones_navegables } ]
+          notebook_task: { notebook_path: ../notebooks/04_plata_calidad.py }
+          max_retries: 2
+        - task_key: monitorear_calidad
+          depends_on: [ { task_key: plata_calidad } ]
+          notebook_task: { notebook_path: ../notebooks/05_monitorear_calidad.py }
+        - task_key: oro_modelo
+          depends_on: [ { task_key: monitorear_calidad } ]
+          notebook_task: { notebook_path: ../notebooks/06_oro_modelo.py }
+          max_retries: 2
+        - task_key: ml_features
+          depends_on: [ { task_key: oro_modelo } ]
+          notebook_task: { notebook_path: ../notebooks/07_ml_features.py }
+        - task_key: ml_entrenar
+          depends_on: [ { task_key: ml_features } ]
+          notebook_task: { notebook_path: ../notebooks/08_ml_entrenar.py }
+        - task_key: ml_puntuar
+          depends_on: [ { task_key: ml_entrenar } ]
+          notebook_task: { notebook_path: ../notebooks/09_ml_puntuar.py }
+        - task_key: validar_contrato
+          depends_on: [ { task_key: ml_puntuar } ]
+          notebook_task: { notebook_path: ../notebooks/10_validar_contrato.py }

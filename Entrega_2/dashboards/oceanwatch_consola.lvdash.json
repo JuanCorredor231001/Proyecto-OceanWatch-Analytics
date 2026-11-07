@@ -1,0 +1,798 @@
+{
+  "datasets": [
+    {
+      "name": "ds_kpis",
+      "displayName": "KPIs del día",
+      "queryLines": [
+        "WITH t AS (\n",
+        "  SELECT event_date, COUNT(*) AS buques_activos, SUM(n_posiciones) AS posiciones,\n",
+        "         ROUND(SUM(distancia_km), 0) AS distancia_total_km\n",
+        "  FROM oceanwatch_g07.gold.trayectorias_diarias_buque GROUP BY event_date),\n",
+        "p AS (\n",
+        "  SELECT event_date, COUNT(*) AS puertos_con_actividad, SUM(buques_en_puerto_al_cierre) AS buques_en_puerto_al_cierre\n",
+        "  FROM oceanwatch_g07.gold.puertos_resumen_diario GROUP BY event_date),\n",
+        "a AS (\n",
+        "  SELECT event_date, COUNT_IF(es_anomalia) AS anomalias\n",
+        "  FROM oceanwatch_g07.gold.anomalias_velocidad_diarias GROUP BY event_date)\n",
+        "SELECT t.event_date, t.buques_activos, t.posiciones, t.distancia_total_km,\n",
+        "       COALESCE(p.puertos_con_actividad, 0) AS puertos_con_actividad,\n",
+        "       COALESCE(p.buques_en_puerto_al_cierre, 0) AS buques_en_puerto_al_cierre,\n",
+        "       COALESCE(a.anomalias, 0) AS anomalias\n",
+        "FROM t LEFT JOIN p USING (event_date) LEFT JOIN a USING (event_date)\n",
+        "ORDER BY t.event_date\n"
+      ]
+    },
+    {
+      "name": "ds_mapa",
+      "displayName": "Intensidad por celda H3",
+      "queryLines": [
+        "SELECT event_date, h3_r8, centro_lat, centro_lon,\n",
+        "       SUM(posiciones)        AS posiciones,\n",
+        "       MAX(buques_distintos)  AS buques_hora_pico,\n",
+        "       ROUND(LOG10(SUM(posiciones)), 3) AS intensidad_log10\n",
+        "FROM oceanwatch_g07.gold.trafico_celda_hora\n",
+        "GROUP BY event_date, h3_r8, centro_lat, centro_lon\n"
+      ]
+    },
+    {
+      "name": "ds_hora",
+      "displayName": "Tráfico por hora",
+      "queryLines": [
+        "SELECT event_date, hora,\n",
+        "       SUM(posiciones) AS posiciones,\n",
+        "       SUM(buques_carga) AS carga, SUM(buques_tanquero) AS tanquero, SUM(buques_pasajeros) AS pasajeros,\n",
+        "       SUM(buques_pesca) AS pesca, SUM(buques_remolque) AS remolque, SUM(buques_recreo) AS recreo\n",
+        "FROM oceanwatch_g07.gold.trafico_celda_hora\n",
+        "GROUP BY event_date, hora\n",
+        "ORDER BY event_date, hora\n"
+      ]
+    },
+    {
+      "name": "ds_puertos",
+      "displayName": "Ranking de puertos",
+      "queryLines": [
+        "SELECT event_date, ranking, port_name, buques_distintos, arribos, buques_atracados,\n",
+        "       buques_en_puerto_al_cierre, ROUND(duracion_media_horas, 2) AS duracion_media_horas,\n",
+        "       buques_carga, buques_tanquero, buques_pasajeros, port_lat, port_lon\n",
+        "FROM oceanwatch_g07.gold.puertos_resumen_diario\n",
+        "WHERE ranking <= 20\n",
+        "ORDER BY event_date, ranking\n"
+      ]
+    },
+    {
+      "name": "ds_en_puerto",
+      "displayName": "Buques en puerto",
+      "queryLines": [
+        "SELECT event_date, port_name, mmsi, COALESCE(vessel_name, '(sin nombre)') AS vessel_name, vessel_type_group,\n",
+        "       arribo_ts, salida_ts, duracion_horas, estado, en_puerto_al_cierre\n",
+        "FROM oceanwatch_g07.gold.estadias_puerto\n",
+        "WHERE en_puerto_al_cierre OR estado = 'ATRACADO_O_FONDEADO'\n",
+        "ORDER BY event_date, port_name, duracion_horas DESC\n"
+      ]
+    },
+    {
+      "name": "ds_anomalias",
+      "displayName": "Anomalías del día",
+      "queryLines": [
+        "SELECT event_date, mmsi, COALESCE(vessel_name, '(sin nombre)') AS vessel_name, vessel_type_group,\n",
+        "       ROUND(anomaly_score, 4) AS anomaly_score, motivo_principal,\n",
+        "       sog_max_kn, velocidad_implicita_max_kn, ROUND(distancia_km, 1) AS distancia_km, n_posiciones,\n",
+        "       lat_ultima, lon_ultima, modelo_version\n",
+        "FROM oceanwatch_g07.gold.anomalias_velocidad_diarias\n",
+        "WHERE es_anomalia\n",
+        "ORDER BY event_date, anomaly_score DESC\n"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "consola",
+      "displayName": "Consola diaria",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layout": [
+        {
+          "widget": {
+            "name": "filtro_fecha",
+            "queries": [
+              {
+                "name": "fecha_ds_kpis",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "fecha_ds_mapa",
+                "query": {
+                  "datasetName": "ds_mapa",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "fecha_ds_hora",
+                "query": {
+                  "datasetName": "ds_hora",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "fecha_ds_puertos",
+                "query": {
+                  "datasetName": "ds_puertos",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "fecha_ds_en_puerto",
+                "query": {
+                  "datasetName": "ds_en_puerto",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "fecha_ds_anomalias",
+                "query": {
+                  "datasetName": "ds_anomalias",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "event_date",
+                    "displayName": "Fecha (UTC)",
+                    "queryName": "fecha_ds_kpis"
+                  },
+                  {
+                    "fieldName": "event_date",
+                    "displayName": "Fecha (UTC)",
+                    "queryName": "fecha_ds_mapa"
+                  },
+                  {
+                    "fieldName": "event_date",
+                    "displayName": "Fecha (UTC)",
+                    "queryName": "fecha_ds_hora"
+                  },
+                  {
+                    "fieldName": "event_date",
+                    "displayName": "Fecha (UTC)",
+                    "queryName": "fecha_ds_puertos"
+                  },
+                  {
+                    "fieldName": "event_date",
+                    "displayName": "Fecha (UTC)",
+                    "queryName": "fecha_ds_en_puerto"
+                  },
+                  {
+                    "fieldName": "event_date",
+                    "displayName": "Fecha (UTC)",
+                    "queryName": "fecha_ds_anomalias"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Fecha del feed"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 2,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_buques",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "buques_activos",
+                      "expression": "`buques_activos`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "buques_activos",
+                  "displayName": "Buques activos"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Buques activos"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_puertos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "puertos_con_actividad",
+                      "expression": "`puertos_con_actividad`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "puertos_con_actividad",
+                  "displayName": "Puertos con actividad"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Puertos con actividad"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_en_puerto",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "buques_en_puerto_al_cierre",
+                      "expression": "`buques_en_puerto_al_cierre`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "buques_en_puerto_al_cierre",
+                  "displayName": "Buques en puerto al cierre"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Buques en puerto al cierre"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_anomalias",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "anomalias",
+                      "expression": "`anomalias`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "anomalias",
+                  "displayName": "Anomalías del día"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Anomalías del día"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "mapa_intensidad",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_mapa",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "centro_lat",
+                      "expression": "`centro_lat`"
+                    },
+                    {
+                      "name": "centro_lon",
+                      "expression": "`centro_lon`"
+                    },
+                    {
+                      "name": "posiciones",
+                      "expression": "`posiciones`"
+                    },
+                    {
+                      "name": "intensidad_log10",
+                      "expression": "`intensidad_log10`"
+                    },
+                    {
+                      "name": "h3_r8",
+                      "expression": "`h3_r8`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "point-map",
+              "encodings": {
+                "coordinates": {
+                  "latitude": {
+                    "fieldName": "centro_lat",
+                    "displayName": "Latitud"
+                  },
+                  "longitude": {
+                    "fieldName": "centro_lon",
+                    "displayName": "Longitud"
+                  }
+                },
+                "color": {
+                  "fieldName": "intensidad_log10",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "log10(posiciones)"
+                },
+                "extra": [
+                  {
+                    "fieldName": "posiciones"
+                  },
+                  {
+                    "fieldName": "h3_r8"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Mapa de intensidad de tráfico (celdas H3 r8)"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "ranking_puertos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_puertos",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "port_name",
+                      "expression": "`port_name`"
+                    },
+                    {
+                      "name": "buques_distintos",
+                      "expression": "`buques_distintos`"
+                    },
+                    {
+                      "name": "ranking",
+                      "expression": "`ranking`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "buques_distintos",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Buques distintos"
+                },
+                "y": {
+                  "fieldName": "port_name",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  },
+                  "displayName": "Puerto"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Ranking de puertos (top 20)"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 2,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "trafico_hora",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_hora",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "hora",
+                      "expression": "`hora`"
+                    },
+                    {
+                      "name": "posiciones",
+                      "expression": "`posiciones`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "hora",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Hora UTC"
+                },
+                "y": {
+                  "fieldName": "posiciones",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Posiciones"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Perfil horario del tráfico"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "tabla_anomalias",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_anomalias",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "vessel_name",
+                      "expression": "`vessel_name`"
+                    },
+                    {
+                      "name": "mmsi",
+                      "expression": "`mmsi`"
+                    },
+                    {
+                      "name": "vessel_type_group",
+                      "expression": "`vessel_type_group`"
+                    },
+                    {
+                      "name": "anomaly_score",
+                      "expression": "`anomaly_score`"
+                    },
+                    {
+                      "name": "motivo_principal",
+                      "expression": "`motivo_principal`"
+                    },
+                    {
+                      "name": "sog_max_kn",
+                      "expression": "`sog_max_kn`"
+                    },
+                    {
+                      "name": "velocidad_implicita_max_kn",
+                      "expression": "`velocidad_implicita_max_kn`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "vessel_name",
+                    "displayName": "Buque"
+                  },
+                  {
+                    "fieldName": "mmsi",
+                    "displayName": "MMSI"
+                  },
+                  {
+                    "fieldName": "vessel_type_group",
+                    "displayName": "Grupo"
+                  },
+                  {
+                    "fieldName": "anomaly_score",
+                    "displayName": "Puntaje"
+                  },
+                  {
+                    "fieldName": "motivo_principal",
+                    "displayName": "Variable principal"
+                  },
+                  {
+                    "fieldName": "sog_max_kn",
+                    "displayName": "SOG máx (kn)"
+                  },
+                  {
+                    "fieldName": "velocidad_implicita_max_kn",
+                    "displayName": "Vel. implícita máx (kn)"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Anomalías de velocidad del día"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 10,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "tabla_en_puerto",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_en_puerto",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "name": "port_name",
+                      "expression": "`port_name`"
+                    },
+                    {
+                      "name": "vessel_name",
+                      "expression": "`vessel_name`"
+                    },
+                    {
+                      "name": "mmsi",
+                      "expression": "`mmsi`"
+                    },
+                    {
+                      "name": "vessel_type_group",
+                      "expression": "`vessel_type_group`"
+                    },
+                    {
+                      "name": "arribo_ts",
+                      "expression": "`arribo_ts`"
+                    },
+                    {
+                      "name": "salida_ts",
+                      "expression": "`salida_ts`"
+                    },
+                    {
+                      "name": "duracion_horas",
+                      "expression": "`duracion_horas`"
+                    },
+                    {
+                      "name": "estado",
+                      "expression": "`estado`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "port_name",
+                    "displayName": "Puerto"
+                  },
+                  {
+                    "fieldName": "vessel_name",
+                    "displayName": "Buque"
+                  },
+                  {
+                    "fieldName": "mmsi",
+                    "displayName": "MMSI"
+                  },
+                  {
+                    "fieldName": "vessel_type_group",
+                    "displayName": "Grupo"
+                  },
+                  {
+                    "fieldName": "arribo_ts",
+                    "displayName": "Arribo"
+                  },
+                  {
+                    "fieldName": "salida_ts",
+                    "displayName": "Última posición"
+                  },
+                  {
+                    "fieldName": "duracion_horas",
+                    "displayName": "Horas"
+                  },
+                  {
+                    "fieldName": "estado",
+                    "displayName": "Estado"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Buques en puerto"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "LEFT"
+    }
+  }
+}

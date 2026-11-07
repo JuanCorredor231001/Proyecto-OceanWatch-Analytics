@@ -1,0 +1,16 @@
+[programador] disparo 1/1 a las 2026-11-06T14:46:44.851025+00:00
+=== Ejecución 20261106T144644-321a7d | fecha=auto ===
+  ✓ resolver_fecha       intento=1    15.8s {"fecha": "2023-06-10"}
+  ✗ aterrizar_feed       intento=1 ERROR: ZIP del feed no disponible localmente: /workspace/Datos/downloads/AIS_2023_06_10.zip
+    reintento en 3s
+  ✗ aterrizar_feed       intento=2 ERROR: ZIP del feed no disponible localmente: /workspace/Datos/downloads/AIS_2023_06_10.zip
+    reintento en 6s
+  ✗ aterrizar_feed       intento=3 ERROR: ZIP del feed no disponible localmente: /workspace/Datos/downloads/AIS_2023_06_10.zip
+  - bronce_streaming     OMITIDO (dependencia fallida)
+  - plata_calidad        OMITIDO (dependencia fallida)
+  - monitorear_calidad   OMITIDO (dependencia fallida)
+  - oro_modelo           OMITIDO (dependencia fallida)
+  - ml_features          OMITIDO (dependencia fallida)
+  - ml_puntuar           OMITIDO (dependencia fallida)
+  - validar_contrato     OMITIDO (dependencia fallida)
+=== Resultado 20261106T144644-321a7d: FALLIDO (fecha=2023-06-10) ===

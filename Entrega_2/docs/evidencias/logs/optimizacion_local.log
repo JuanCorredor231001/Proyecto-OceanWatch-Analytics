@@ -1,0 +1,14 @@
+  ✓ aterrizar_feed       intento=1    54.2s {"fecha": "202_06_01.csv", "filas_origen": 8808904, "filas_pu
+=== Resultado 20261106T151723-9adb1e: EXITOSO (fecha=2023-06
+  ✓ aterrizar_feed       intento=1    57.9s {"fecha": "202_06_08.csv", "filas_origen": 8920444, "filas_pu
+=== Resultado 20261106T152117-493026: EXITOSO (fecha=2023-06
+  ✓ aterrizar_feed       intento=1    54.4s {"fecha": "202_06_09.csv", "filas_origen": 8791124, "filas_pu
+=== Resultado 20261106T152405-ad039f: EXITOSO (fecha=2023-06
+CORRIDA_1 total=615s
+  ✓ aterrizar_feed       intento=1     4.1s {"fecha": "202_06_01.csv", "filas_origen": 8808904, "filas_pu
+=== Resultado 20261106T152727-ec562c: EXITOSO (fecha=2023-06
+  ✓ aterrizar_feed       intento=1     4.1s {"fecha": "202_06_08.csv", "filas_origen": 8920444, "filas_pu
+=== Resultado 20261106T153038-a9d05c: EXITOSO (fecha=2023-06
+  ✓ aterrizar_feed       intento=1     3.9s {"fecha": "202_06_09.csv", "filas_origen": 8791124, "filas_pu
+=== Resultado 20261106T153227-28cce3: EXITOSO (fecha=2023-06
+CORRIDA_2 total=430s
