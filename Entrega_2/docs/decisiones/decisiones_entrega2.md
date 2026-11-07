@@ -1,6 +1,6 @@
 # Decisiones técnicas - Entrega 2
 
-Las decisiones D-01 a D-07 de la Entrega 1 siguen vigentes ([`docs/decisiones_pendientes_de_confirmar.md`](../../../docs/decisiones_pendientes_de_confirmar.md), en la raíz del repositorio). En particular, D-03 (2 km para asociar celdas a puertos), D-04 (pares haversine con gap ≤ 2 h y velocidad implícita ≤ 60 kn) y D-07 (MMSI de 9 dígitos) se convierten aquí en compuertas y reglas del modelo oro. Cada decisión cita la evidencia que la sostiene.
+Las decisiones D-01 a D-07 de la Entrega 1 siguen vigentes ([`docs/decisiones/decisiones_pendientes_de_confirmar.md`](../../../docs/decisiones/decisiones_pendientes_de_confirmar.md), en la raíz del repositorio). En particular, D-03 (2 km para asociar celdas a puertos), D-04 (pares haversine con gap ≤ 2 h y velocidad implícita ≤ 60 kn) y D-07 (MMSI de 9 dígitos) se convierten aquí en compuertas y reglas del modelo oro. Cada decisión cita la evidencia que la sostiene.
 
 ## D-E2-01 - Corpus extendido y feed diario
 
