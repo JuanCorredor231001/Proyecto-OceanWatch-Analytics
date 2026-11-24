@@ -43,7 +43,7 @@ El job de backfill (`888154898396381`) entrenó el modelo con los **7 días hist
 | Run vigente | `ca6f949f7bb3476eb3f198928ca5ef0c` (`isoforest_2023-06-01_2023-06-07`), FINISHED, 18.6 s; origen: run `110747360612499` del job de backfill |
 | Parámetros | IsolationForest, `contamination = 0.01`, `n_estimators = 200`, `random_state = 42`, `min_posiciones = 10`, 10 variables, fechas 01-07 jun |
 | Métricas | `n_entrenamiento = 131,613` buque-día; `tasa_anomalias = 0.0100`; `score_p50 = 0.3962`; `score_p99 = 0.6798`; `score_max = 0.7926` |
-| Modelo en Unity Catalog | `oceanwatch_g07.ml.oceanwatch_anomalias_velocidad`: versiones 1, 2 y 3 en estado READY; **alias `champion` → v3** |
+| Modelo en Unity Catalog | `oceanwatch_g06.ml.oceanwatch_anomalias_velocidad`: versiones 1, 2 y 3 en estado READY; **alias `champion` → v3** |
 | Puntuación | `gold.anomalias_velocidad_diarias`: 14 días (01-14 jun), 287,145 buque-día, **3,098 anomalías**, todas con `modelo_version = 3` |
 
 **Versiones 1 y 2.** Corresponden a los runs `9050a911…` y `6655086b…`, que quedaron FAILED después de registrar el modelo, en los intentos fallidos de `ml_entrenar` durante el backfill (reparaciones descritas en la evidencia 12). Las métricas son idénticas a las de v3 porque el entrenamiento es determinista (`random_state = 42`). El alias se movió a v3 y la puntuación del feed solo usa v3, sin cambiar código, como prevé D-E2-08.
