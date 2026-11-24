@@ -6,7 +6,7 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 
 ## Fase 0 - Ajustes previos en el repositorio (local, ~1 h)
 
-**Estado (2026-11-07): hecha**, salvo 0.7 (opcional) y el commit de 0.8. Además se corrigió un error que no estaba en la lista: el `.lvdash.json` consultaba `oceanwatch_g06` y no `oceanwatch_g07`. Las alertas usan `${workspace.current_user.userName}` en lugar de un correo fijo, y el target `produccion` recibió su `host`. Verificación: YAML válidos, pytest 16/16 y demo de feed ausente repetida.
+**Estado (2026-11-07): hecha**, salvo 0.7 (opcional) y el commit de 0.8. Las alertas usan `${workspace.current_user.userName}` en lugar de un correo fijo, y el target `produccion` recibió su `host`. Verificación: YAML válidos, pytest 16/16 y demo de feed ausente repetida.
 
 | # | Tarea | Por qué | Archivo |
 |---|---|---|---|
@@ -14,10 +14,9 @@ Los 14 ZIP NOAA (01-14 jun 2023) ya están en `Datos/downloads/`.
 | 0.2 | Actualizar la sección "Prueba local": ahora hay 14 ZIP y la nota "si falta un ZIP la tarea falla" debe decir cómo se prueba la falla | Documentación coherente con los datos | `README.md` |
 | 0.3 | Quitar la advertencia "Pendiente de validar en el workspace": la evidencia 12 muestra el deploy y las corridas | Contradice la evidencia | `README.md` |
 | 0.4 | Corregir el enlace `../Entrega_1/...`: la Entrega 1 vive en la raíz del repositorio, no en una carpeta `Entrega_1/` | Enlaces rotos en README y decisiones | `README.md`, `docs/decisiones/decisiones_entrega2.md` |
-| 0.5 | Unificar el catálogo: la bitácora dice `oceanwatch_g06` en D-06 y el resto usa `oceanwatch_g07` | Inconsistencia | `docs/decisiones/BITACORA.md` |
-| 0.6 | Reemplazar `correo_alertas = equipo-oceanwatch@example.com` por un correo real del equipo | Sin él, la notificación de falla (req. 3) no llega a nadie | `databricks.yml` |
-| 0.7 | Opcional: correr en local el feed 10-14 con `--muestreo 10` para ampliar las métricas de calidad locales | Más días de evidencia local; ~2 min por día | `scripts/run_pipeline_local.py` |
-| 0.8 | Primer commit de `Entrega_2/`. Antes, revisar con `git status` que no entren datos ni artefactos (`Datos/`, `local_lakehouse*/`, `.ivy2/`, `spark-warehouse/` y `.databricks/` ya están en `.gitignore`) | La carpeta completa sigue sin versionar | git |
+| 0.5 | Reemplazar `correo_alertas = equipo-oceanwatch@example.com` por un correo real del equipo | Sin él, la notificación de falla (req. 3) no llega a nadie | `databricks.yml` |
+| 0.6 | Opcional: correr en local el feed 10-14 con `--muestreo 10` para ampliar las métricas de calidad locales | Más días de evidencia local; ~2 min por día | `scripts/run_pipeline_local.py` |
+| 0.7 | Primer commit de `Entrega_2/`. Antes, revisar con `git status` que no entren datos ni artefactos (`Datos/`, `local_lakehouse*/`, `.ivy2/`, `spark-warehouse/` y `.databricks/` ya están en `.gitignore`) | La carpeta completa sigue sin versionar | git |
 
 ## Fase 1 - Feed diario completo en Databricks (req. 1 y 3, 35 %)
 
