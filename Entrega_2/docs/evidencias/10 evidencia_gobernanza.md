@@ -2,7 +2,7 @@
 
 ## 1. Esquemas con permisos por rol
 
-El catálogo `oceanwatch_g07` separa las capas en esquemas (`setup.SCHEMAS`). El notebook `notebooks/12_gobernanza.py` otorga permisos **por esquema** a cuatro grupos parametrizables:
+El catálogo `oceanwatch_g06` separa las capas en esquemas (`setup.SCHEMAS`). El notebook `notebooks/12_gobernanza.py` otorga permisos **por esquema** a cuatro grupos parametrizables:
 
 | Esquema | `oceanwatch_ingenieros` | `oceanwatch_cientificos` | `oceanwatch_analistas` | `oceanwatch_tablero` |
 |---|---|---|---|---|
@@ -109,5 +109,5 @@ Grafo de linaje (*See lineage graph*): `silver.ais_posiciones` y `reference.port
 **Decisión del equipo (2026-11-07):** el grant de `account users` se mantiene, como riesgo aceptado. El catálogo vive en un workspace académico compartido y los integrantes entran a él por ese grant. Revocarlo les quitaría el acceso mientras no existan grupos de cuenta. Por eso los permisos por rol quedan **definidos y verificados**, pero **no son restrictivos** mientras el grant siga vigente. En un entorno productivo, el primer paso sería:
 
 ```sql
-REVOKE ALL PRIVILEGES, MANAGE, EXTERNAL USE SCHEMA ON CATALOG oceanwatch_g07 FROM `account users`;
+REVOKE ALL PRIVILEGES, MANAGE, EXTERNAL USE SCHEMA ON CATALOG oceanwatch_g06 FROM `account users`;
 ```
