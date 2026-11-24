@@ -12,7 +12,7 @@ include:
 variables:
   catalogo:
     description: Catálogo de Unity Catalog del equipo en el workspace institucional.
-    default: oceanwatch_g07
+    default: oceanwatch_g06
   warehouse_id:
     description: SQL warehouse que ejecuta el tablero.
     default: "4f11fd1da31b2442"   # Serverless Starter Warehouse
