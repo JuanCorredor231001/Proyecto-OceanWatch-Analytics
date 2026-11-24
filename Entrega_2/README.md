@@ -1,6 +1,6 @@
 # OceanWatch Analytics - Entrega 2 (MINE 4213)
 
-Pipeline completo del lakehouse de tráfico marítimo AIS (NOAA / Marine Cadastre): **ingesta en streaming**, **capas bronce → plata → oro con la calidad como compuerta**, **orquestación**, **consola de visualización**, **gobernanza**, **ML con MLflow** y bono de **Delta Sharing**. Continúa la [Entrega 1](../README.md), que vive en la raíz del repositorio: conserva sus decisiones D-01 a D-07 y el catálogo `oceanwatch_g07`.
+Pipeline completo del lakehouse de tráfico marítimo AIS (NOAA / Marine Cadastre): **ingesta en streaming**, **capas bronce → plata → oro con la calidad como compuerta**, **orquestación**, **consola de visualización**, **gobernanza**, **ML con MLflow** y bono de **Delta Sharing**. Continúa la [Entrega 1](../README.md), que vive en la raíz del repositorio: conserva sus decisiones D-01 a D-07 y el catálogo `oceanwatch_g06`.
 
 ## Equipo
 
@@ -21,7 +21,7 @@ Pipeline completo del lakehouse de tráfico marítimo AIS (NOAA / Marine Cadastr
 | 5 | Gobernanza (10) | `notebooks/12_gobernanza.py`, `contracts/gold_contract.yml` | [contrato de oro](docs/contrato_datos_oro.md), [10 gobernanza](docs/evidencias/10%20evidencia_gobernanza.md) |
 | 6 | ML con MLflow (10) | `src/oceanwatch/ml.py`, `notebooks/07-09` | [11 ML](docs/evidencias/11%20evidencia_ml.md) |
 | 7 | Repositorio y bitácora (5) | este repositorio | [bitácora](docs/decisiones/BITACORA.md), [decisiones E2](docs/decisiones/decisiones_entrega2.md) |
-| Despliegue | Databricks (`oceanwatch_g07`, serverless) | `databricks.yml` | [12 Databricks](docs/evidencias/12%20evidencia_databricks.md) |
+| Despliegue | Databricks (`oceanwatch_g06`, serverless) | `databricks.yml` | [12 Databricks](docs/evidencias/12%20evidencia_databricks.md) |
 | Bono | Delta Sharing (+5) | `notebooks/13_*`, `14_*` | [13 Delta Sharing](docs/evidencias/13%20evidencia_delta_sharing.md): share creado; destinatario bloqueado porque el metastore no tiene habilitado el sharing externo |
 
 Las capturas del workspace están en [`docs/evidencias/capturas/`](docs/evidencias/capturas/). Lo que falta está en el [plan de cierre](docs/plan_cierre_entrega2.md).
