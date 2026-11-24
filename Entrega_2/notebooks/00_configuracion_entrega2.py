@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 00 - Configuración de la Entrega 2 (capas, Volumes, tablas y referencias)
 # MAGIC
@@ -16,6 +20,13 @@
 
 # COMMAND ----------
 
+# Si Databricks muestra el mensaje: "you may need to restart the kernel..."
+# ejecutar: 
+# dbutils.library.restartPython()
+# y continuar desde la siguiente celda.
+
+# COMMAND ----------
+
 import json
 import os
 import sys
@@ -29,7 +40,7 @@ from oceanwatch.notebook_params import widget
 from oceanwatch.pipeline import seed_feed_calendar
 from oceanwatch.setup import build_reference_tables, create_all
 
-CATALOG = widget(dbutils, "catalogo", "oceanwatch_g07")
+CATALOG = widget(dbutils, "catalogo", "oceanwatch_g06")
 lh = get_lakehouse(spark, catalog=CATALOG)
 
 # COMMAND ----------

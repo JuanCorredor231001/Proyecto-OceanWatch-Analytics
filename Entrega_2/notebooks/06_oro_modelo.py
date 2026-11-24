@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 06 - Oro: modelo de negocio
 # MAGIC
@@ -16,7 +20,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..", "src")))
 from oceanwatch.lakehouse import get_lakehouse
 from oceanwatch.notebook_params import fechas, widget
 
-CATALOG = widget(dbutils, "catalogo", "oceanwatch_g07")
+CATALOG = widget(dbutils, "catalogo", "oceanwatch_g06")
 lh = get_lakehouse(spark, catalog=CATALOG)
 
 # COMMAND ----------

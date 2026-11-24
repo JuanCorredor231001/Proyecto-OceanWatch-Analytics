@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 12 - Gobernanza: permisos por rol, linaje y contrato de oro
 # MAGIC
@@ -26,7 +30,7 @@ from oceanwatch.contract import gold_tables, load_contract
 from oceanwatch.lakehouse import get_lakehouse
 from oceanwatch.notebook_params import widget
 
-CATALOG = widget(dbutils, "catalogo", "oceanwatch_g07")
+CATALOG = widget(dbutils, "catalogo", "oceanwatch_g06")
 G_ING = widget(dbutils, "grupo_ingenieros", "oceanwatch_ingenieros")
 G_CIE = widget(dbutils, "grupo_cientificos", "oceanwatch_cientificos")
 G_ANA = widget(dbutils, "grupo_analistas", "oceanwatch_analistas")

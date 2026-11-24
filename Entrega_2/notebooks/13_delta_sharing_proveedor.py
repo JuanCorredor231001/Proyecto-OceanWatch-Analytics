@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 13 - Bono: Delta Sharing (Open Sharing) - proveedor (workspace institucional)
 # MAGIC
@@ -10,7 +14,7 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalogo", "oceanwatch_g07")
+dbutils.widgets.text("catalogo", "oceanwatch_g06")
 dbutils.widgets.text("share", "oceanwatch_oro")
 dbutils.widgets.text("destinatario", "oceanwatch_free_edition")
 C, SHARE, RECIPIENT = (dbutils.widgets.get(k) for k in ("catalogo", "share", "destinatario"))
@@ -29,8 +33,30 @@ display(spark.sql(f"SHOW ALL IN SHARE {SHARE}"))
 # COMMAND ----------
 
 # Destinatario de Open Sharing (autenticación por token): consumidor fuera de este metastore.
-spark.sql(f"CREATE RECIPIENT IF NOT EXISTS {RECIPIENT} COMMENT 'Workspace Databricks Free Edition del equipo'")
-spark.sql(f"GRANT SELECT ON SHARE {SHARE} TO RECIPIENT {RECIPIENT}")
-display(spark.sql(f"SHOW GRANTS ON SHARE {SHARE}"))
-# El activation_link aparece en DESCRIBE RECIPIENT: copiarlo manualmente y entregarlo por canal privado.
-display(spark.sql(f"DESCRIBE RECIPIENT {RECIPIENT}").filter("info_name <> 'activation_link'"))
+try:
+    spark.sql(
+        f"""
+        CREATE RECIPIENT IF NOT EXISTS {RECIPIENT}
+        COMMENT 'Workspace Databricks Free Edition del equipo'
+        """
+    )
+    spark.sql(f"GRANT SELECT ON SHARE {SHARE} TO RECIPIENT {RECIPIENT}")
+
+    display(spark.sql(f"SHOW GRANTS ON SHARE {SHARE}"))
+
+    # El activation_link aparece en DESCRIBE RECIPIENT: nunca imprimirlo en salida ni subirlo a Git.
+    display(
+        spark.sql(f"DESCRIBE RECIPIENT {RECIPIENT}").filter(
+            "info_name <> 'activation_link'"
+        )
+    )
+except Exception as exc:
+    msg = str(exc)
+    if "External Delta Sharing is not enabled on the metastore" in msg or "PERMISSION_DENIED" in msg:
+        print(
+            f"[AVISO] No se pudo crear/asignar el destinatario '{RECIPIENT}' para el share '{SHARE}': "
+            "External Delta Sharing no está habilitado en este metastore (restricción de metastore / Free Edition). "
+            "El share y sus tablas oro ya quedaron publicados en el paso anterior."
+        )
+    else:
+        raise
