@@ -58,7 +58,7 @@ En 1.4 falta una corrida fallida en el workspace que dispare el correo; hoy los 
 - 3.3: el linaje se consultó por SQL; faltan la captura y declarar los huecos bronce → plata y features → anomalías.
 - 3.4: etiquetas en 5/5 tablas y comentarios en 93/93 columnas.
 
-**Decisión (2026-11-07):** se mantiene el grant de `account users` (`ALL PRIVILEGES` + `MANAGE` sobre `oceanwatch_g07`) como riesgo aceptado, para no quitar el acceso a los integrantes. La evidencia 10 documenta que los roles no son restrictivos mientras exista y el `REVOKE` que se usaría en producción.
+**Decisión (2026-11-07):** se mantiene el grant de `account users` (`ALL PRIVILEGES` + `MANAGE` sobre `oceanwatch_g06`) como riesgo aceptado, para no quitar el acceso a los integrantes. La evidencia 10 documenta que los roles no son restrictivos mientras exista y el `REVOKE` que se usaría en producción.
 
 | # | Tarea | Evidencia |
 |---|---|---|
