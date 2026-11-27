@@ -30,9 +30,8 @@ Top 5 del ranking del 09-jun: New York (29 buques), Newport (23), Chicago (18), 
 ## En el workspace institucional (verificado el 2026-11-07)
 
 - **Despliegue:** el bundle publicó el tablero [`OceanWatch - Consola de tráfico marítimo`](https://dbc-18ae9c2d-d518.cloud.databricks.com/dashboardsv3/01f1d9f8b9351847a578d7ab844fbbe7/published) sobre el *Serverless Starter Warehouse* (`4f11fd1da31b2442`). La revisión publicada es la del despliegue del 2026-11-07.
-- **Corrección de catálogo:** hasta el 2026-11-06 el `.lvdash.json` consultaba `oceanwatch_g06`, un catálogo inexistente. Se regeneró con `scripts/generar_tablero.py --catalogo oceanwatch_g07` y el tablero se volvió a desplegar. Los 6 datasets publicados consultan ahora `oceanwatch_g07.gold.*`.
 - **Widgets publicados (10):** filtro de fecha; 4 contadores (buques, puertos, buques en puerto, anomalías); mapa de intensidad; barras del ranking de puertos; línea del tráfico por hora; tablas de anomalías y de buques en puerto.
-- **Consultas ejecutadas en el warehouse:** son las mismas de `dashboards/sql/`, con `__CATALOGO__ = oceanwatch_g07`. Todas cubren los 14 días:
+- **Consultas ejecutadas en el warehouse:** son las mismas de `dashboards/sql/`, con `__CATALOGO__ = oceanwatch_g06`. Todas cubren los 14 días:
 
 | Dataset | Filas | Días | Rango |
 |---|---:|---:|---|

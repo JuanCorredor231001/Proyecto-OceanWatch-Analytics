@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 14 - Bono: Delta Sharing - consumidor en Databricks Free Edition
 # MAGIC

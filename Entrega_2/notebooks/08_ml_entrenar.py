@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 08 - ML: entrenamiento y registro en MLflow
 # MAGIC
@@ -7,6 +11,13 @@
 # COMMAND ----------
 
 # MAGIC %pip install -q "mlflow>=3.1" scikit-learn skops
+
+# COMMAND ----------
+
+# Si Databricks muestra el mensaje: "you may need to restart the kernel..."
+# ejecutar: 
+dbutils.library.restartPython()
+# y continuar desde la siguiente celda.
 
 # COMMAND ----------
 
@@ -19,7 +30,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..", "src")))
 from oceanwatch.lakehouse import get_lakehouse
 from oceanwatch.notebook_params import fechas, widget
 
-CATALOG = widget(dbutils, "catalogo", "oceanwatch_g07")
+CATALOG = widget(dbutils, "catalogo", "oceanwatch_g06")
 lh = get_lakehouse(spark, catalog=CATALOG)
 
 # COMMAND ----------

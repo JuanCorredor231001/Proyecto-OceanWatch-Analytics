@@ -1,6 +1,6 @@
 # Evidencia - Ejecución en el workspace de Databricks
 
-**Workspace:** `https://dbc-18ae9c2d-d518.cloud.databricks.com` · **Usuario:** j.corredor2@uniandes.edu.co · **Catálogo:** `oceanwatch_g07` (el que ya contenía los activos de la Entrega 1) · **Cómputo:** serverless (jobs) y *Serverless Starter Warehouse* (tablero).
+**Workspace:** `https://dbc-18ae9c2d-d518.cloud.databricks.com` · **Usuario:** j.corredor2@uniandes.edu.co · **Catálogo:** `oceanwatch_g06` (el que ya contenía los activos de la Entrega 1) · **Cómputo:** serverless (jobs) y *Serverless Starter Warehouse* (tablero).
 
 ## Despliegue (Databricks Asset Bundle)
 

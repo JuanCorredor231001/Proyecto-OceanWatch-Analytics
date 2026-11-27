@@ -111,7 +111,7 @@ def build(catalog: str, default_date: str) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--catalogo", default="oceanwatch_g07")
+    parser.add_argument("--catalogo", default="oceanwatch_g06")
     parser.add_argument("--fecha-defecto", default="2023-06-14", help="fecha que muestra el filtro al abrir (último día del feed)")
     args = parser.parse_args()
     out = ROOT / "dashboards" / "oceanwatch_consola.lvdash.json"

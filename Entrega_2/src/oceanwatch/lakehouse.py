@@ -35,7 +35,7 @@ class Lakehouse:
     """Resuelve nombres y operaciones de E/S según la plataforma."""
 
     spark: SparkSession
-    catalog: str = "oceanwatch_g07"
+    catalog: str = "oceanwatch_g06"
     local_root: str | None = None
     schema_names: dict = field(default_factory=lambda: {k: k for k in SCHEMAS})
 
@@ -157,7 +157,7 @@ def build_local_spark(app_name: str = "oceanwatch-local", shuffle_partitions: in
 def get_lakehouse(spark: SparkSession | None = None, catalog: str | None = None,
                   local_root: str | None = None) -> Lakehouse:
     """Punto de entrada único: en Databricks usa la sesión activa; en local construye una."""
-    catalog = catalog or os.environ.get("OW_CATALOG", "oceanwatch_g07")
+    catalog = catalog or os.environ.get("OW_CATALOG", "oceanwatch_g06")
     if IS_DATABRICKS:
         spark = spark or SparkSession.getActiveSession()
         spark.conf.set("spark.sql.session.timeZone", "UTC")
